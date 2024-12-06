@@ -1,32 +1,32 @@
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import Wrapper from '../../component/email/Wrapper';
-import Layout from '../../component/home/Layout';
-import { deleteKhoa, fetchKhoas } from '../../features/khoa/khoaSlice';
-import useMenu from '../../hooks/useMenu';
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import Wrapper from "../../component/email/Wrapper";
+import Layout from "../../component/home/Layout";
+import { deleteQuestion, fetchQuestions } from "../../features/cauhoi/cauhoiSlice";
+import useMenu from "../../hooks/useMenu";
 
-const DanhSachKhoa = () => {
+const DanhSachCauhoi = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { khoas, status, error } = useSelector((state) => state.khoas);
+  const { cauhois, status, error } = useSelector((state) => state.cauhoi);
   const [currentPage, setCurrentPage] = useState(1);
-  const [khoasPerPage, setKhoasPerPage] = useState(10);
+  const [questionsPerPage, setQuestionsPerPage] = useState(10);
 
   useEffect(() => {
-    dispatch(fetchKhoas());
+    dispatch(fetchQuestions());
   }, [dispatch]);
 
   const handleDelete = (id) => {
-    dispatch(deleteKhoa(id))
+    dispatch(deleteQuestion(id))
       .then(() => {
-        toast.success("Department deleted successfully");
+        toast.success("Question deleted successfully");
       })
       .catch(() => {
-        toast.error("Failed to delete department");
+        toast.error("Failed to delete question");
       });
   };
 
@@ -34,9 +34,9 @@ const DanhSachKhoa = () => {
     setCurrentPage(page);
   };
 
-  const indexOfLastKhoa = currentPage * khoasPerPage;
-  const indexOfFirstKhoa = indexOfLastKhoa - khoasPerPage;
-  const currentKhoas = khoas.slice(indexOfFirstKhoa, indexOfLastKhoa);
+  const indexOfLastQuestion = currentPage * questionsPerPage;
+  const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
+  const currentQuestions = cauhois.slice(indexOfFirstQuestion, indexOfLastQuestion);
 
   useMenu();
 
@@ -46,13 +46,13 @@ const DanhSachKhoa = () => {
         <div className="container-fluid p-0">
           <div className="crancy-table crancy-table__support mg-top-30">
             <div className="crancy-table__heading">
-              <h3 className="crancy-table__title mb-0">Danh sách khoa</h3>
+              <h3 className="crancy-table__title mb-0">Danh sách câu hỏi</h3>
               <div className="crancy-table__right">
                 <Link
-                  to={"/admin/department/create"}
+                  to={"/lecturer/manage-questions/create"}
                   className="crancy-btn crancy-sbcolor crancy-btn__profile"
                 >
-                  Thêm khoa
+                  Thêm câu hỏi
                 </Link>
               </div>
             </div>
@@ -73,34 +73,40 @@ const DanhSachKhoa = () => {
                         ID
                       </th>
                       <th className="crancy-table__column-2 crancy-table__h2">
-                        Name
+                        Text
                       </th>
                       <th className="crancy-table__column-3 crancy-table__h3">
+                        Type
+                      </th>
+                      <th className="crancy-table__column-4 crancy-table__h4">
                         Actions
                       </th>
                     </tr>
                   </thead>
                   <tbody className="crancy-table__body">
-                    {currentKhoas.map((khoa) => (
-                      <tr key={khoa.id}>
+                    {currentQuestions.map((question) => (
+                      <tr key={question.id}>
                         <td className="crancy-table__column-1 crancy-table__data-1">
-                          {khoa.id}
+                          {question.id}
                         </td>
                         <td className="crancy-table__column-2 crancy-table__data-2">
-                          {khoa.name}
+                          {question.question_text}
                         </td>
                         <td className="crancy-table__column-3 crancy-table__data-3">
+                          {question.question_type}
+                        </td>
+                        <td className="crancy-table__column-4 crancy-table__data-4">
                           <button
                             style={{ height: "30px", width: "30px" }}
                             onClick={() =>
-                              navigate(`/admin/department/edit/${khoa.id}`)
+                              navigate(`/lecturer/manage-questions/edit/${question.id}`)
                             }
                           >
                             <FontAwesomeIcon icon={faEdit} />
                           </button>
                           <button
                             style={{ height: "30px", width: "30px" }}
-                            onClick={() => handleDelete(khoa.id)}
+                            onClick={() => handleDelete(question.id)}
                           >
                             <FontAwesomeIcon icon={faTrash} />
                           </button>
@@ -150,7 +156,7 @@ const DanhSachKhoa = () => {
                           </a>
                         </li>
                         {Array.from(
-                          Array(Math.ceil(khoas.length / khoasPerPage)).keys()
+                          Array(Math.ceil(cauhois.length / questionsPerPage)).keys()
                         ).map((id, index) => (
                           <li
                             className={`paginate_button page-item ${
@@ -171,13 +177,13 @@ const DanhSachKhoa = () => {
                         ))}
                         <li
                           className={`paginate_button page-item next ${
-                            currentPage === Math.ceil(khoas.length / khoasPerPage)
+                            currentPage === Math.ceil(cauhois.length / questionsPerPage)
                               ? "disabled"
                               : ""
                           }`}
                           id="crancy-table__main_next"
                           onClick={() =>
-                            currentPage < Math.ceil(khoas.length / khoasPerPage) &&
+                            currentPage < Math.ceil(cauhois.length / questionsPerPage) &&
                             setCurrentPage(currentPage + 1)
                           }
                         >
@@ -203,4 +209,4 @@ const DanhSachKhoa = () => {
   );
 };
 
-export default DanhSachKhoa;
+export default DanhSachCauhoi;

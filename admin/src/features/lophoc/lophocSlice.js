@@ -1,33 +1,36 @@
+
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosClient from "../../api/axiosClient";
 
 const initialState = {
-  cauhois: [],
-  cauhoi: {},
+  lophocs: [],
+  lophoc: {},
   status: "idle", // 'idle', 'loading', 'succeeded', 'failed'
   error: null,
 };
-export const fetchQuestions = createAsyncThunk(
-  "questions/fetchQuestions",
+
+export const fetchClasses = createAsyncThunk(
+  "classes/fetchClasses",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get("/api/questions", {
+      const response = await axiosClient.get("/api/classes", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
       console.log(response.data);
-      return response.data;
+       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
   }
 );
-export const fetchQuestionById = createAsyncThunk(
-  "questions/fetchQuestionById",
+
+export const fetchClassById = createAsyncThunk(
+  "classes/fetchClassById",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get(`/api/questions/${id}`, {
+      const response = await axiosClient.get(`/api/classes/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -38,11 +41,12 @@ export const fetchQuestionById = createAsyncThunk(
     }
   }
 );
-export const createQuestion = createAsyncThunk(
-  "questions/createQuestion",
-  async (question, { rejectWithValue }) => {
+
+export const createClass = createAsyncThunk(
+  "classes/createClass",
+  async (lophoc, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post("/api/questions", question, {
+      const response = await axiosClient.post("/api/classes", lophoc, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -53,13 +57,14 @@ export const createQuestion = createAsyncThunk(
     }
   }
 );
-export const editQuestion = createAsyncThunk(
-  "questions/editQuestion",
-  async (question, { rejectWithValue }) => {
+
+export const editClass = createAsyncThunk(
+  "classes/editClass",
+  async (lophoc, { rejectWithValue }) => {
     try {
       const response = await axiosClient.put(
-        `/api/questions/${question.id}`,
-        question,
+        `/api/classes/${lophoc.id}`,
+        lophoc,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -73,11 +78,11 @@ export const editQuestion = createAsyncThunk(
   }
 );
 
-export const deleteQuestion = createAsyncThunk(
-  "questions/deleteQuestion",
+export const deleteClass = createAsyncThunk(
+  "classes/deleteClass",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.delete(`/api/questions/${id}`, {
+      const response = await axiosClient.delete(`/api/classes/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -89,79 +94,80 @@ export const deleteQuestion = createAsyncThunk(
   }
 );
 
-const cauhoiSlice = createSlice({
-  name: "cauhoi",
+const lophocSlice = createSlice({
+  name: "lophoc",
   initialState,
   extraReducers: (builder) => {
     builder
-      .addCase(fetchQuestions.pending, (state, action) => {
+      .addCase(fetchClasses.pending, (state, action) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchQuestions.fulfilled, (state, action) => {
+      .addCase(fetchClasses.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.cauhois = action.payload.data;
+        console.log(action.payload);
+        state.lophocs = action.payload.data;
         state.error = null;
       })
-      .addCase(fetchQuestions.rejected, (state, action) => {
+      .addCase(fetchClasses.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(fetchQuestionById.pending, (state, action) => {
+      .addCase(fetchClassById.pending, (state, action) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchQuestionById.fulfilled, (state, action) => {
+      .addCase(fetchClassById.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.cauhoi = action.payload.data;
+        state.lophoc = action.payload.data;
         state.error = null;
       })
-      .addCase(fetchQuestionById.rejected, (state, action) => {
+      .addCase(fetchClassById.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(createQuestion.pending, (state, action) => {
+      .addCase(createClass.pending, (state, action) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(createQuestion.fulfilled, (state, action) => {
+      .addCase(createClass.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.cauhois.push(action.payload.data);
+        state.lophocs.push(action.payload.data);
         state.error = null;
       })
-      .addCase(createQuestion.rejected, (state, action) => {
+      .addCase(createClass.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(editQuestion.pending, (state, action) => {
+      .addCase(editClass.pending, (state, action) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(editQuestion.fulfilled, (state, action) => {
+      .addCase(editClass.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.cauhoi = action.payload.data;
+        state.lophoc = action.payload.data;
         state.error = null;
       })
-      .addCase(editQuestion.rejected, (state, action) => {
+      .addCase(editClass.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })
-      .addCase(deleteQuestion.pending, (state, action) => {
+      .addCase(deleteClass.pending, (state, action) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(deleteQuestion.fulfilled, (state, action) => {
+      .addCase(deleteClass.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.cauhois = state.cauhois.filter(
-          (cauhoi) => cauhoi.id !== action.payload.data.id
+        state.lophocs = state.lophocs.filter(
+          (lophoc) => lophoc.id !== action.payload.data.id
         );
         state.error = null;
       })
-      .addCase(deleteQuestion.rejected, (state, action) => {
+      .addCase(deleteClass.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
   },
 });
 
-export default cauhoiSlice.reducer;
+export default lophocSlice.reducer;

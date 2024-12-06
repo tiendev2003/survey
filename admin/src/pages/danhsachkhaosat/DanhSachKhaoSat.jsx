@@ -40,6 +40,8 @@ const DanhSachKhaoSat = () => {
   const { users } = useSelector((state) => state.users);
   const [selectedSurvey, setSelectedSurvey] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [show, setShow] = useState(25);
+  const [page, setPage] = useState(1);
   useEffect(() => {
     dispatch(fetchSurveys());
   }, [dispatch]);
@@ -201,7 +203,8 @@ const DanhSachKhaoSat = () => {
                   </thead>
                   <tbody className="crancy-table__body">
                     {currentSurveys.map((survey) => {
-                      const isPastEndDate = new Date(survey.end_date) < new Date();
+                      const isPastEndDate =
+                        new Date(survey.end_date) < new Date();
                       return (
                         <tr key={survey.id}>
                           <td className="crancy-table__column-1 crancy-table__data-1">
@@ -260,7 +263,9 @@ const DanhSachKhaoSat = () => {
                             </button>
                             <button
                               style={{ height: "30px", width: "30px" }}
-                              onClick={() => handleSendSurveyToGroups(survey.id)}
+                              onClick={() =>
+                                handleSendSurveyToGroups(survey.id)
+                              }
                               disabled={isPastEndDate}
                             >
                               <FontAwesomeIcon icon={faEnvelope} />
@@ -297,23 +302,70 @@ const DanhSachKhaoSat = () => {
                     className="dataTables_length"
                     id="crancy-table__main_length"
                   >
-                    <label>
-                      Show result:
-                      <select
-                        name="crancy-table__main_length"
-                        aria-controls="crancy-table__main"
-                        className="form-select form-select-sm"
-                        defaultValue={surveysPerPage}
-                        onChange={(e) =>
-                          setSurveysPerPage(Number(e.target.value))
-                        }
-                      >
-                        <option value="4">4</option>
-                        <option value="10">10</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                      </select>
-                    </label>
+                    <div
+                      className="dataTables_paginate paging_simple_numbers"
+                      id="crancy-table__main_paginate"
+                    >
+                      <ul className="pagination">
+                        <li
+                          className={`paginate_button page-item previous ${
+                            page === 1 ? "disabled" : ""
+                          }`}
+                          id="crancy-table__main_previous"
+                          onClick={() => page > 1 && setPage(page - 1)}
+                        >
+                          <a
+                            aria-controls="crancy-table__main"
+                            data-dt-idx="previous"
+                            tabIndex="0"
+                            className="page-link"
+                          >
+                            <i className="fas fa-angle-left"></i>
+                          </a>
+                        </li>
+                        {Array.from(
+                          Array(Math.ceil(khaosats.length / show)).keys("n")
+                        ).map((id, index) => (
+                          <li
+                            className={`paginate_button page-item ${
+                              page === index + 1 ? "active" : ""
+                            }`}
+                            onClick={() => setPage(index + 1)}
+                            key={index + "key"}
+                          >
+                            <a
+                              aria-controls="crancy-table__main"
+                              data-dt-idx="0"
+                              tabIndex="0"
+                              className="page-link"
+                            >
+                              {index + 1}
+                            </a>
+                          </li>
+                        ))}
+                        <li
+                          className={`paginate_button page-item next ${
+                            page === khaosats.length % show < 1
+                              ? "disabled"
+                              : ""
+                          }`}
+                          id="crancy-table__main_next"
+                          onClick={() =>
+                            page < Math.ceil(khaosats.length / show) &&
+                            setPage(page + 1)
+                          }
+                        >
+                          <a
+                            aria-controls="crancy-table__main"
+                            data-dt-idx="next"
+                            tabIndex="0"
+                            className="page-link"
+                          >
+                            <i className="fas fa-angle-right"></i>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                   <div className="dataTables_paginate">
                     {[

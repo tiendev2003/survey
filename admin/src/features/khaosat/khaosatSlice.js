@@ -4,6 +4,7 @@ import axiosClient from "../../api/axiosClient";
 const initialState = {
   khaosats: [],
   khaosat: {},
+  thongke: {},
   status: "idle", // 'idle', 'loading', 'succeeded', 'failed'
   error: null,
 };
@@ -16,6 +17,7 @@ export const fetchSurveys = createAsyncThunk(
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
+      console.log(response.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -231,6 +233,38 @@ export const fetchSurveyByStudent = createAsyncThunk(
     }
   }
 );
+export const fetchSurveyStatis= createAsyncThunk(
+  "surveys/fetchSurveyStatis",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.get(`/api/surveys/${id}/statistics`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return response.data;
+
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+)
+
+export const fetchSurveyAllAdmin = createAsyncThunk(
+  "surveys/fetchSurveyAllAdmin",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.get(`/api/surveys/all/admin`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
 
 const khaosatSlice = createSlice({
   name: "khaosat",
@@ -324,8 +358,8 @@ const khaosatSlice = createSlice({
       })
       .addCase(fetchSurvey.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log("action.payload.data", action.payload.data);
-        state.khaosat = action.payload.data;
+         
+         state.khaosat = action.payload.data;
         state.error = null;
       })
       .addCase(fetchSurvey.rejected, (state, action) => {
@@ -355,6 +389,33 @@ const khaosatSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchSurveyByStudent.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchSurveyStatis.pending, (state, action) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchSurveyStatis.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.thongke = action.payload.data;
+        state.error = null;
+      })
+      .addCase(fetchSurveyStatis.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchSurveyAllAdmin.pending, (state, action) => {
+        state.status = "loading";
+        state.error = null;
+      }
+      )
+      .addCase(fetchSurveyAllAdmin.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.khaosats = action.payload.data;
+        state.error = null;
+      })
+      .addCase(fetchSurveyAllAdmin.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });

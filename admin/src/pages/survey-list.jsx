@@ -12,17 +12,19 @@ function SurveyList() {
   const { khaosats } = useSelector((state) => state.khaosat);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [show, setShow] = useState(25);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     dispatch(fetchSurveyByStudent());
   }, [dispatch]);
-
+  
   useMenu();
   return (
     <Layout>
       <Wrapper>
         <div className="container-fluid p-0">
-          {loading && <div className="loading-spinner">Loading...</div>}
+          {loading && <div className="loading-spinner">Đang tải...</div>}
           <div className="row crancy-gap-30">
             <div className="col-xxl-3 col-lg-4 col-12">
               <div className="row">
@@ -57,7 +59,7 @@ function SurveyList() {
                       <input
                         id="ticketinfo"
                         type="search"
-                        placeholder="Search"
+                        placeholder="Tìm kiếm"
                         aria-controls="crancy-table__main"
                       />
                     </form>
@@ -80,25 +82,28 @@ function SurveyList() {
                             ID
                           </th>
                           <th className="crancy-table__column-2 crancy-table__h2">
-                            Title
+                            Tiêu đề
                           </th>
                           <th className="crancy-table__column-3 crancy-table__h3">
-                            Description
+                            Mô tả
                           </th>
                           <th className="crancy-table__column-4 crancy-table__h4">
-                            Start Date
+                            Ngày bắt đầu
                           </th>
                           <th className="crancy-table__column-5 crancy-table__h5">
-                            End Date
+                            Ngày kết thúc
                           </th>
                           <th className="crancy-table__column-6 crancy-table__h6">
-                            Actions
+                            Hành động
                           </th>
                         </tr>
                       </thead>
                       <tbody className="crancy-table__body">
                         {khaosats.map((survey) => {
-                          const isExpired = new Date(survey.end_date) < new Date();
+                          const isExpired =
+                            new Date(survey.end_date) < new Date();
+                          const isStarted =
+                            new Date(survey.start_date) <= new Date();
                           return (
                             <tr key={survey.id}>
                               <td className="crancy-table__column-1 crancy-table__data-1">
@@ -111,13 +116,15 @@ function SurveyList() {
                                 {survey.description}
                               </td>
                               <td className="crancy-table__column-4 crancy-table__data-4">
-                                {new Date(survey.start_date).toLocaleDateString()}
+                                {new Date(
+                                  survey.start_date
+                                ).toLocaleDateString()}
                               </td>
                               <td className="crancy-table__column-5 crancy-table__data-5">
                                 {new Date(survey.end_date).toLocaleDateString()}
                               </td>
                               <td className="crancy-table__column-6 crancy-table__data-6">
-                                {!isExpired ? (
+                                {!isExpired && isStarted ? (
                                   <Link
                                     to={`/student/survey-list/${survey.id}`}
                                     className="crancy-table__view"
@@ -125,7 +132,9 @@ function SurveyList() {
                                     <FontAwesomeIcon icon={faEye} />
                                   </Link>
                                 ) : (
-                                  <span className="crancy-table__expired">Expired</span>
+                                  <span className="crancy-table__expired">
+                                    {isExpired ? "Hết hạn" : "Chưa bắt đầu"}
+                                  </span>
                                 )}
                               </td>
                             </tr>
@@ -139,7 +148,7 @@ function SurveyList() {
                         className="dataTables_filter"
                       >
                         <label>
-                          Search:
+                          Tìm kiếm:
                           <input
                             type="search"
                             className="form-control form-control-sm"
@@ -152,21 +161,70 @@ function SurveyList() {
                         className="dataTables_length"
                         id="crancy-table__main_length"
                       >
-                        <label>
-                          Show result:
-                          <select
-                            name="crancy-table__main_length"
-                            aria-controls="crancy-table__main"
-                            className="form-select form-select-sm"
-                            onChange={(e) => setShow(e.target.value)}
-                            defaultValue={25}
-                          >
-                            <option value="4">4</option>
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                          </select>
-                        </label>
+                        <div
+                          className="dataTables_paginate paging_simple_numbers"
+                          id="crancy-table__main_paginate"
+                        >
+                          <ul className="pagination">
+                            <li
+                              className={`paginate_button page-item previous ${
+                                page === 1 ? "disabled" : ""
+                              }`}
+                              id="crancy-table__main_previous"
+                              onClick={() => page > 1 && setPage(page - 1)}
+                            >
+                              <a
+                                aria-controls="crancy-table__main"
+                                data-dt-idx="previous"
+                                tabIndex="0"
+                                className="page-link"
+                              >
+                                <i className="fas fa-angle-left"></i>
+                              </a>
+                            </li>
+                            {Array.from(
+                              Array(Math.ceil(khaosats.length / show)).keys()
+                            ).map((_, index) => (
+                              <li
+                                className={`paginate_button page-item ${
+                                  page === index + 1 ? "active" : ""
+                                }`}
+                                onClick={() => setPage(index + 1)}
+                                key={index}
+                              >
+                                <a
+                                  aria-controls="crancy-table__main"
+                                  data-dt-idx="0"
+                                  tabIndex="0"
+                                  className="page-link"
+                                >
+                                  {index + 1}
+                                </a>
+                              </li>
+                            ))}
+                            <li
+                              className={`paginate_button page-item next ${
+                                page === Math.ceil(khaosats.length / show)
+                                  ? "disabled"
+                                  : ""
+                              }`}
+                              id="crancy-table__main_next"
+                              onClick={() =>
+                                page < Math.ceil(khaosats.length / show) &&
+                                setPage(page + 1)
+                              }
+                            >
+                              <a
+                                aria-controls="crancy-table__main"
+                                data-dt-idx="next"
+                                tabIndex="0"
+                                className="page-link"
+                              >
+                                <i className="fas fa-angle-right"></i>
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -186,19 +244,19 @@ function SurveyList() {
                             ID
                           </th>
                           <th className="crancy-table__column-2 crancy-table__h2">
-                            Subject
+                            Chủ đề
                           </th>
                           <th className="crancy-table__column-3 crancy-table__h3">
-                            Date
+                            Ngày
                           </th>
                           <th className="crancy-table__column-4 crancy-table__h4">
-                            Customer
+                            Khách hàng
                           </th>
                           <th className="crancy-table__column-5 crancy-table__h5">
-                            Status
+                            Trạng thái
                           </th>
                           <th className="crancy-table__column-6 crancy-table__h6">
-                            Priority
+                            Ưu tiên
                           </th>
                         </tr>
                       </thead>
@@ -229,12 +287,14 @@ function SurveyList() {
                             </h5>
                           </td>
                           <td className="crancy-table__column-5 crancy-table__data-5">
-                            <div className="crancy-table__status">Done</div>
+                            <div className="crancy-table__status">
+                              Hoàn thành
+                            </div>
                           </td>
                           <td className="crancy-table__column-6 crancy-table__data-6">
                             <div className="crancy-flex-between">
                               <h5 className="crancy-table__inner--title">
-                                High
+                                Cao
                               </h5>
                               <div className="crancy-chatbox__toggle">
                                 <svg
@@ -288,13 +348,13 @@ function SurveyList() {
                           </td>
                           <td className="crancy-table__column-5 crancy-table__data-5">
                             <div className="crancy-table__status crancy-table__status--cancel">
-                              Cancel
+                              Hủy
                             </div>
                           </td>
                           <td className="crancy-table__column-6 crancy-table__data-6">
                             <div className="crancy-flex-between">
                               <h5 className="crancy-table__inner--title">
-                                Law
+                                Thấp
                               </h5>
                               <div className="crancy-chatbox__toggle">
                                 <svg

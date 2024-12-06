@@ -27,7 +27,6 @@ exports.createQuestion = async (req, res) => {
 
 exports.getQuestions = async (req, res) => {
   try {
-    console.log(req.user);
     if (req.user == undefined) {
       return errorResponse(
         res,
@@ -37,11 +36,94 @@ exports.getQuestions = async (req, res) => {
       );
     }
     const questions = await Question.findAll({
-      include: [{ model: Option }],
+      include: [{ model: Option, as: "options" }],
     });
 
     successResponse(res, "Questions retrieved successfully", questions);
   } catch (err) {
     errorResponse(res, "Failed to retrieve questions", err.message, 500);
+  }
+};
+
+exports.editQuestion = async (req, res) => {
+  const { question_text, question_type, options } = req.body;
+  const { id } = req.params;
+
+  try {
+    const question = await Question.findByPk(id);
+
+    if (!question) {
+      return errorResponse(
+        res,
+        "Question not found",
+        "Question not found",
+        404
+      );
+    }
+
+    await question.update({
+      question_text,
+      question_type,
+    });
+
+    if (question_type === "multiple_choice" && Array.isArray(options)) {
+      await Option.destroy({ where: { question_id: id } });
+
+      const optionData = options.map((option) => ({
+        question_id: id,
+        option_text: option,
+      }));
+      await Option.bulkCreate(optionData);
+    }
+
+    successResponse(res, "Question updated successfully", question);
+  } catch (err) {
+    errorResponse(res, "Failed to update question", err.message, 500);
+  }
+};
+
+exports.deleteQuestion = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const question = await Question.findByPk(id);
+
+    if (!question) {
+      return errorResponse(
+        res,
+        "Question not found",
+        "Question not found",
+        404
+      );
+    }
+
+    await question.destroy();
+
+    successResponse(res, "Question deleted successfully");
+  } catch (err) {
+    errorResponse(res, "Failed to delete question", err.message, 500);
+  }
+};
+
+exports.getQuestion = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const question = await Question.findByPk(id, {
+      include: [{ model: Option, as: "options" }],
+    });
+
+    if (!question) {
+      return errorResponse(
+        res,
+        "Question not found",
+        "Question not found",
+        404
+      );
+    }
+
+    successResponse(res, "Question retrieved successfully", question);
+  } catch (err) {
+    errorResponse(res, "Failed to retrieve question", err.message, 500);
   }
 };

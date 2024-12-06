@@ -29,6 +29,10 @@ const Survey = sequelize.define('Survey', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
+  total_user: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
+  },
 }, {
   timestamps: true,
 });

@@ -106,6 +106,22 @@ function Menu({ toggleMenu, menu }) {
                       </span>
                     </Link>
                   </li>
+                  <li className={activeMenu === "cauhoi" ? "active" : ""}>
+                    <Link
+                      className="collapsed"
+                      to="/lecturer/manage-questions"
+                      onClick={() => handleMenuClick("cauhoi")}
+                    >
+                      <span className="menu-bar__text">
+                        <span className="crancy-menu-icon crancy-svg-icon__v1">
+                          <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zm0-10v2h14V7H7z"/>
+                          </svg>
+                        </span>
+                        <span className="menu-bar__name">Ngân hàng câu hỏi</span>
+                      </span>
+                    </Link>
+                  </li>
                   <li className={activeMenu === "profile" ? "active" : ""}>
                     <Link
                       className="collapsed"
@@ -139,6 +155,54 @@ function Menu({ toggleMenu, menu }) {
                           </svg>
                         </span>
                         <span className="menu-bar__name">Pending Surveys</span>
+                      </span>
+                    </Link>
+                  </li>
+                  <li className={activeMenu === "department" ? "active" : ""}>
+                    <Link
+                      className="collapsed"
+                      to="/admin/department"
+                      onClick={() => handleMenuClick("department")}
+                    >
+                      <span className="menu-bar__text">
+                        <span className="crancy-menu-icon crancy-svg-icon__v1">
+                          <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zm0-10v2h14V7H7z"/>
+                          </svg>
+                        </span>
+                        <span className="menu-bar__name">Danh sách khoa</span>
+                      </span>
+                    </Link>
+                  </li>
+                  <li className={activeMenu === "classes" ? "active" : ""}>
+                    <Link
+                      className="collapsed"
+                      to="/admin/classes"
+                      onClick={() => handleMenuClick("classes")}
+                    >
+                      <span className="menu-bar__text">
+                        <span className="crancy-menu-icon crancy-svg-icon__v1">
+                          <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zm0-10v2h14V7H7z"/>
+                          </svg>
+                        </span>
+                        <span className="menu-bar__name">Danh sách lớp</span>
+                      </span>
+                    </Link>
+                  </li>
+                  <li className={activeMenu === "statistics" ? "active" : ""}>
+                    <Link
+                      className="collapsed"
+                      to="/admin/statistics"
+                      onClick={() => handleMenuClick("statistics")}
+                    >
+                      <span className="menu-bar__text">
+                        <span className="crancy-menu-icon crancy-svg-icon__v1">
+                          <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                          </svg>
+                        </span>
+                        <span className="menu-bar__name">Thống kê</span>
                       </span>
                     </Link>
                   </li>

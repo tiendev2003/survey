@@ -1,17 +1,30 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Wrapper from '../../component/email/Wrapper';
 import Layout from '../../component/home/Layout';
-import { createKhoa } from '../../features/khoa/khoaSlice';
+import { fetchKhoaById, updateKhoa } from '../../features/khoa/khoaSlice';
 
-const TaoKhoa = () => {
+const SuaKhoa = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { khoa } = useSelector((state) => state.khoas);
   const [khoaData, setKhoaData] = useState({
     name: '',
   });
+
+  useEffect(() => {
+    dispatch(fetchKhoaById(id));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (khoa) {
+      setKhoaData({ name: khoa.name });
+    }
+  }, [khoa]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,11 +34,11 @@ const TaoKhoa = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(createKhoa(khoaData)).unwrap();
-      toast.success('Department created successfully!');
+      await dispatch(updateKhoa({ id, ...khoaData })).unwrap();
+      toast.success('Department updated successfully!');
       navigate('/admin/department');
     } catch (error) {
-      toast.error('Failed to create department.');
+      toast.error('Failed to update department.');
     }
   };
 
@@ -35,7 +48,7 @@ const TaoKhoa = () => {
         <div className="container mt-5">
           <div className="card">
             <div className="card-body">
-              <h1 className="mb-4">Tạo Khoa</h1>
+              <h1 className="mb-4">Sửa Khoa</h1>
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Tên Khoa</label>
@@ -48,7 +61,7 @@ const TaoKhoa = () => {
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">Tạo Khoa</button>
+                <button type="submit" className="btn btn-primary">Cập Nhật Khoa</button>
               </form>
             </div>
           </div>
@@ -58,4 +71,4 @@ const TaoKhoa = () => {
   );
 };
 
-export default TaoKhoa;
+export default SuaKhoa;

@@ -4,7 +4,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const sequelize = require("./config/db");
 const authRoutes = require("./routes/auth");
-
+ 
 const app = express();
 
 // Middleware CORS
@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/departments", require("./routes/department"));
 app.use("/api/users", require("./routes/user"));
-app.use("/api/surveys", require("./routes/survey"));
+app.use("/api/surveys",  require("./routes/survey"));
 app.use("/api/classes", require("./routes/class"));
 app.use("/api/questions", require("./routes/question"));
 app.use((err, req, res, next) => {

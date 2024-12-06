@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import Wrapper from "../component/email/Wrapper";
 import Layout from "../component/home/Layout";
 import {
@@ -8,7 +9,6 @@ import {
   saveSurveyResponses,
 } from "../features/khaosat/khaosatSlice";
 import useMenu from "../hooks/useMenu";
-
 const questionTypeTranslation = {
   rating: "Đánh giá",
   text: "Văn bản",
@@ -22,10 +22,24 @@ const DetailSurvey = () => {
   const [responses, setResponses] = useState({});
   const { id } = useParams();
   const dispatch = useDispatch();
-
-  const { khaosat } = useSelector((state) => state.khaosat);
+  const [loading, setLoading] = useState(false);
+  const history = useNavigate();
+  const [khaosat, setKhaosat] = useState({});
   useEffect(() => {
-    dispatch(fetchSurvey(id));
+    setLoading(true);
+    dispatch(fetchSurvey(id))
+      .unwrap()
+      .then((data) => {
+        console.log(data.data);
+        setKhaosat(data.data);
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Có lỗi xảy ra khi tải dữ liệu khảo sát.");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -36,7 +50,7 @@ const DetailSurvey = () => {
           initialResponses[question.id] = question.user_response;
         }
       });
-       setResponses(initialResponses);
+      setResponses(initialResponses);
     }
   }, [khaosat]);
 
@@ -47,21 +61,37 @@ const DetailSurvey = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formattedResponses = Object.keys(responses).map((questionId) => ({
-      question_id: questionId,
-      answer_text: responses[questionId],
-    }));
-    dispatch(
-      saveSurveyResponses({ surveyId: id, responses: formattedResponses })
-    );
+    if (window.confirm("Bạn có chắc chắn muốn gửi kết quả khảo sát?")) {
+      setLoading(true);
+      const formattedResponses = Object.keys(responses).map((questionId) => ({
+        question_id: questionId,
+        answer_text: responses[questionId],
+      }));
+      try {
+        await dispatch(
+          saveSurveyResponses({ surveyId: id, responses: formattedResponses })
+        ).unwrap();
+        setLoading(false);
+        toast.success("Gửi kết quả khảo sát thành công.");
+        history(-1);
+      } catch (error) {
+        console.error(error);
+        setLoading(false);
+        toast.error("Có lỗi xảy ra khi gửi kết quả khảo sát.");
+      }
+    }
   };
   return (
     <Layout>
       <Wrapper>
         <div className="container">
-          {Object.keys(khaosat).length === 0 ? (
+          {loading ? (
+            <div className="alert alert-info" role="alert">
+              Đang gửi kết quả khảo sát...
+            </div>
+          ) : Object.keys(khaosat).length === 0 ? (
             <div className="alert alert-warning" role="alert">
               Không có dữ liệu khảo sát.
             </div>
@@ -96,7 +126,7 @@ const DetailSurvey = () => {
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="row">
-                  {khaosat.questions.map((question) => (
+                  {khaosat?.questions?.map((question) => (
                     <div className="col-md-12 mb-4" key={question.id}>
                       <div className="card">
                         <div className="card-body">
@@ -109,7 +139,7 @@ const DetailSurvey = () => {
                           </p>
                           {question.question_type === "multiple_choice" && (
                             <ul className="list-group list-group-flush">
-                              {question.Options.map((option, index) => (
+                              {question.options.map((option, index) => (
                                 <li className="list-group-item" key={option.id}>
                                   <div
                                     className="crancy-wc__checkbox"
@@ -205,7 +235,11 @@ const DetailSurvey = () => {
                     </div>
                   ))}
                 </div>
-                <button type="submit" className="btn btn-primary">
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
                   Gửi
                 </button>
               </form>

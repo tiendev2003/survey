@@ -1,8 +1,26 @@
 const express = require("express");
 const { authenticateToken } = require("../middleware/auth");
 const { authorizeRoles } = require("../middleware/roles");
-const { createSurvey, getSurveys, updateSurvey, deleteSurvey, scheduleSurvey, approveSurvey, getPendingSurveys, sendSurveyToGroups, createSurveyLink, duplicateSurvey, getSurveyQuestions, getSurveyDetail, getSurveysForStudent, getSurveyOfStudent, saveSurveyResponse } = require("../controllers/surveyController");
- 
+const {
+  createSurvey,
+  getSurveys,
+  updateSurvey,
+  deleteSurvey,
+  scheduleSurvey,
+  approveSurvey,
+  getPendingSurveys,
+  sendSurveyToGroups,
+  createSurveyLink,
+  duplicateSurvey,
+  getSurveyQuestions,
+  getSurveyDetail,
+  getSurveysForStudent,
+  getSurveyOfStudent,
+  saveSurveyResponse,
+  getSurveyResponseStats,
+  getAllSurveyAdmin,
+   
+} = require("../controllers/surveyController");
 
 const router = express.Router();
 
@@ -67,5 +85,7 @@ router.get("/all/student", authenticateToken, getSurveysForStudent);
 router.get("/can-take", authenticateToken, getSurveyOfStudent);
 router.get("/:id", authenticateToken, getSurveyDetail);
 router.post("/response", authenticateToken, saveSurveyResponse);
-
+router.get("/:surveyId/statistics", authenticateToken, getSurveyResponseStats);
+router.get("/all/admin", authenticateToken, getAllSurveyAdmin);
+ 
 module.exports = router;

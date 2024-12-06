@@ -14,10 +14,8 @@ User.hasMany(Survey, { foreignKey: "created_by" });
 Survey.belongsTo(User, { foreignKey: "created_by" });
 
 // 1-N: Question -> Option
-Question.hasMany(Option, { foreignKey: "question_id" });
-Option.belongsTo(Question, { foreignKey: "question_id" });
-
- 
+Question.hasMany(Option, { foreignKey: "question_id", as: "options" });
+Option.belongsTo(Question, { foreignKey: "question_id", as: "options" });
 
 // 1-N: User -> SurveyResponse
 User.hasMany(SurveyResponse, { foreignKey: "user_id" });
@@ -30,6 +28,14 @@ SurveyResponse.belongsTo(Survey, { foreignKey: "survey_id" });
 // 1-N: Question -> SurveyResponse
 Question.hasMany(SurveyResponse, { foreignKey: "question_id" });
 SurveyResponse.belongsTo(Question, { foreignKey: "question_id" });
+
+// 1-N: Class -> SurveyResponse
+Class.hasMany(SurveyResponse, { foreignKey: "class_id" });
+SurveyResponse.belongsTo(Class, { foreignKey: "class_id" });
+
+// 1-N: Department -> SurveyResponse
+Department.hasMany(SurveyResponse, { foreignKey: "department_id" });
+SurveyResponse.belongsTo(Department, { foreignKey: "department_id" });
 
 Survey.belongsToMany(User, {
   through: SurveyParticipant,
@@ -53,7 +59,7 @@ User.hasMany(SystemLog, { foreignKey: "user_id" });
 SystemLog.belongsTo(User, { foreignKey: "user_id" });
 
 User.belongsTo(Class, { foreignKey: "class_id", as: "class" });
-Class.hasMany(User, { foreignKey: "class_id" });
+Class.hasMany(User, { foreignKey: "class_id", as: "class" });
 
 Survey.belongsToMany(Class, {
   through: "SurveyClasses",
@@ -98,7 +104,6 @@ module.exports = {
   Survey,
   Question,
   Option,
-
   SurveyParticipant,
   SystemLog,
   Report,

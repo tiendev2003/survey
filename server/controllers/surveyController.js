@@ -14,6 +14,7 @@ const Department = require("../models/Department");
 const Class = require("../models/Class");
 const SurveyQuestion = require("../models/SurveyQuestion");
 const SurveyResponse = require("../models/SurveyResponse");
+const sequelize = require("../config/db");
 
 exports.createSurvey = async (req, res) => {
   const { title, description, start_date, end_date, question_ids, questions } =
@@ -87,7 +88,7 @@ exports.getSurveys = async (req, res) => {
   } catch (err) {
     errorResponse(res, "Failed to retrieve surveys", err.message, 500);
   }
-};
+};  
 
 exports.updateSurvey = async (req, res) => {
   const { id } = req.params;
@@ -287,7 +288,6 @@ exports.getPendingSurveys = async (req, res) => {
 exports.sendSurveyToGroups = async (req, res) => {
   const { id } = req.params; // ID của khảo sát
   const { type, ids } = req.body; // Gửi theo "department" hoặc "class"
-
   try {
     const survey = await Survey.findByPk(id);
     if (!survey)
@@ -310,7 +310,14 @@ exports.sendSurveyToGroups = async (req, res) => {
         include: [
           {
             model: Class,
-            include: [{ model: Department, where: { id: ids } }],
+            as: "class",
+            include: [
+              {
+                model: Department,
+                as: "department",
+                where: { id: ids },
+              },
+            ],
           },
         ],
         attributes: ["email", "id"],
@@ -318,13 +325,21 @@ exports.sendSurveyToGroups = async (req, res) => {
       emailList = users.map((user) => user.email);
 
       // Lưu trữ user được xem survey
-      const surveyParticipants = users.map((user) => ({
-        user_id: user.id,
-        survey_id: survey.id,
-      }));
-      await SurveyParticipant.bulkCreate(surveyParticipants);
+      const existingParticipants = await SurveyParticipant.findAll({
+        where: { survey_id: survey.id },
+        attributes: ["user_id"],
+      });
+      const existingUserIds = existingParticipants.map((p) => p.user_id);
+
+      const newParticipants = users
+        .filter((user) => !existingUserIds.includes(user.id))
+        .map((user) => ({
+          user_id: user.id,
+          survey_id: survey.id,
+        }));
+      await SurveyParticipant.bulkCreate(newParticipants);
     } else if (type === "class") {
-      console.log(ids)
+      console.log(ids);
       // Lấy danh sách email từ các lớp
       const users = await User.findAll({
         where: { class_id: ids },
@@ -333,11 +348,19 @@ exports.sendSurveyToGroups = async (req, res) => {
       emailList = users.map((user) => user.email);
 
       // Lưu trữ user được xem survey
-      const surveyParticipants = users.map((user) => ({
-        user_id: user.id,
-        survey_id: survey.id,
-      }));
-      await SurveyParticipant.bulkCreate(surveyParticipants);
+      const existingParticipants = await SurveyParticipant.findAll({
+        where: { survey_id: survey.id },
+        attributes: ["user_id"],
+      });
+      const existingUserIds = existingParticipants.map((p) => p.user_id);
+
+      const newParticipants = users
+        .filter((user) => !existingUserIds.includes(user.id))
+        .map((user) => ({
+          user_id: user.id,
+          survey_id: survey.id,
+        }));
+      await SurveyParticipant.bulkCreate(newParticipants);
     } else {
       return errorResponse(
         res,
@@ -355,16 +378,18 @@ exports.sendSurveyToGroups = async (req, res) => {
         404
       );
     }
-
+    survey.total_user = emailList.length;
     // Gửi email đến danh sách
     await sendSurveyEmail(emailList, survey);
 
+    await survey.save();
     successResponse(
       res,
       `Survey sent successfully to ${emailList.length} recipients`,
       null
     );
   } catch (err) {
+    console.log(err);
     errorResponse(res, "Failed to send survey", err.message, 500);
   }
 };
@@ -393,31 +418,6 @@ exports.getSurveyQuestions = async (req, res) => {
     );
   } catch (err) {
     errorResponse(res, "Failed to retrieve survey questions", err.message, 500);
-  }
-};
-exports.getSurveyResults = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const questions = await Question.findAll({
-      include: [
-        {
-          model: Response,
-          where: { survey_id: id },
-          required: false,
-        },
-      ],
-    });
-
-    const results = questions.map((question) => ({
-      question_text: question.question_text,
-      question_type: question.question_type,
-      responses: question.Responses.map((resp) => resp.answer_text),
-    }));
-
-    successResponse(res, "Survey results retrieved successfully", results);
-  } catch (err) {
-    errorResponse(res, "Failed to retrieve survey results", err.message, 500);
   }
 };
 exports.duplicateSurvey = async (req, res) => {
@@ -468,7 +468,7 @@ exports.getSurveyDetail = async (req, res) => {
         {
           model: Question,
           as: "questions",
-          include: [{ model: Option }],
+          include: [{ model: Option, as: "options" }],
         },
       ],
     });
@@ -499,6 +499,7 @@ exports.getSurveyDetail = async (req, res) => {
       questions: questionsWithResponses,
     });
   } catch (err) {
+    console.log(err);
     errorResponse(res, "Failed to retrieve survey", err.message, 500);
   }
 };
@@ -550,7 +551,9 @@ exports.getSurveysForStudent = async (req, res) => {
       return errorResponse(res, "User not found", "Invalid user ID", 404);
     }
 
-    const surveys = user.SurveyParticipants.map((participant) => participant.Survey);
+    const surveys = user.SurveyParticipants.map(
+      (participant) => participant.Survey
+    );
 
     successResponse(res, "Surveys retrieved successfully", surveys);
   } catch (err) {
@@ -561,20 +564,63 @@ exports.getSurveysForStudent = async (req, res) => {
 exports.saveSurveyResponse = async (req, res) => {
   const { surveyId, responses } = req.body;
   const userId = req.user.id;
-
+  
   try {
+
+    // kiểm tra user có quyền truy cập survey không
+    const user = await User.findOne({
+      where: { id: userId },
+      include: [
+        {
+          model: Class,
+          as: "class",
+        },
+      ]
+    })
+    if (!user) {
+      return errorResponse(res, "User not found", "Invalid user ID", 404);
+    }
+
+    const canAccess = await user.canAccessSurvey(surveyId);
+    if (!canAccess) {
+      return errorResponse(
+        res,
+        "Unauthorized",
+        "You do not have access to this survey",
+        403
+      );
+    }
+
+
     const survey = await Survey.findByPk(surveyId);
     if (!survey) {
       return errorResponse(res, "Survey not found", "Invalid survey ID", 404);
     }
 
     for (const response of responses) {
-      await SurveyResponse.upsert({
-        user_id: userId,
-        survey_id: surveyId,
-        question_id: response.question_id,
-        answer_text: response.answer_text,
+      const existingResponse = await SurveyResponse.findOne({
+        where: {
+          user_id: userId,
+          survey_id: surveyId,
+          question_id: response.question_id,
+        },
       });
+
+      if (existingResponse) {
+        existingResponse.answer_text = response.answer_text;
+        existingResponse.class_id = user.class_id;
+        existingResponse.department_id = user.class.department_id;
+        
+        await existingResponse.save();
+      } else {
+        await SurveyResponse.create({
+          user_id: userId,
+          survey_id: surveyId,
+          question_id: response.question_id,
+          answer_text: response.answer_text,
+          class_id: user.class_id,
+        });
+      }
     }
 
     successResponse(res, "Survey responses saved successfully", null);
@@ -582,3 +628,52 @@ exports.saveSurveyResponse = async (req, res) => {
     errorResponse(res, "Failed to save survey responses", err.message, 500);
   }
 };
+
+exports.getSurveyResponseStats = async (req, res) => {
+  const { surveyId } = req.params;
+
+  try {
+    const classStats = await SurveyResponse.findAll({
+      where: { survey_id: surveyId },
+      attributes: [
+        "class_id",
+        [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("user_id"))), "response_count"],
+      ],
+      group: ["class_id"],
+      include: [{ model: Class, attributes: ["name"] }],
+    });
+
+    const departmentStats = await SurveyResponse.findAll({
+      where: { survey_id: surveyId }, 
+      attributes: [
+        "department_id",
+        [sequelize.fn("COUNT", sequelize.fn("DISTINCT", sequelize.col("user_id"))), "response_count"],
+      ],
+      group: ["department_id"],
+      include: [{ model: Department, attributes: ["name"] }],
+    });
+
+    successResponse(res, "Survey response statistics retrieved successfully", {
+      classStats,
+      departmentStats,
+    });
+  } catch (err) {
+    errorResponse(
+      res,
+      "Failed to retrieve survey response statistics",
+      err.message,
+      500
+    );
+  }
+};
+
+exports.getAllSurveyAdmin = async (req, res) => {
+  try {
+    const surveys = await Survey.findAll( );
+
+    successResponse(res, "Surveys retrieved successfully", surveys);
+  } catch (err) {
+    console.log(err);
+    errorResponse(res, "Failed to retrieve surveys", err.message, 500);
+  }
+}
