@@ -15,6 +15,7 @@ const Class = require("../models/Class");
 const SurveyQuestion = require("../models/SurveyQuestion");
 const SurveyResponse = require("../models/SurveyResponse");
 const sequelize = require("../config/db");
+const schedule = require('node-schedule');
 
 exports.createSurvey = async (req, res) => {
   const { title, description, start_date, end_date, question_ids, questions } =
@@ -46,6 +47,7 @@ exports.createSurvey = async (req, res) => {
           question_text: q.text,
           question_type: q.type,
           created_by: req.user.id,
+          status: "draft",
         });
 
         if (q.type === "multiple_choice" && Array.isArray(q.options)) {
@@ -381,6 +383,15 @@ exports.sendSurveyToGroups = async (req, res) => {
     survey.total_user = emailList.length;
     // Gửi email đến danh sách
     await sendSurveyEmail(emailList, survey);
+
+    // Schedule reminder email 3 days before survey end date
+    const reminderDate = new Date(survey.end_date);
+    reminderDate.setDate(reminderDate.getDate() - 3);
+    if (reminderDate > new Date()) {
+      schedule.scheduleJob(reminderDate, async () => {
+        await sendSurveyEmail(emailList, survey, true); // true indicates reminder email
+      });
+    }
 
     await survey.save();
     successResponse(

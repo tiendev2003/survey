@@ -59,11 +59,11 @@ console.log(thongke)
   };
 
   const departmentData = {
-    labels: thongke?.departmentStats?.map((stat) => stat.Department.name) || [],
+    labels: thongke?.departmentStats?.map((stat) => stat?.Department?.name) || [],
     datasets: [
       {
         label: "Số lượng phản hồi",
-        data: thongke?.departmentStats?.map((stat) => stat.response_count) || [],
+        data: thongke?.departmentStats?.map((stat) => stat?.response_count) || [],
         backgroundColor: ["rgba(255, 99, 132, 0.2)"],
         borderColor: ["rgba(255, 99, 132, 1)"],
         borderWidth: 1,

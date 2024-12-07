@@ -89,6 +89,22 @@ export const deleteQuestion = createAsyncThunk(
   }
 );
 
+export const fetchQuestionsByExam = createAsyncThunk(
+  "questions/fetchQuestionsByExam",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.get("/api/questions/status/true", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
 const cauhoiSlice = createSlice({
   name: "cauhoi",
   initialState,
@@ -104,6 +120,19 @@ const cauhoiSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchQuestions.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchQuestionsByExam.pending, (state, action) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchQuestionsByExam.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.cauhois = action.payload.data;
+        state.error = null;
+      })
+      .addCase(fetchQuestionsByExam.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       })

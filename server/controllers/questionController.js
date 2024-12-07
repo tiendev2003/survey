@@ -37,6 +37,30 @@ exports.getQuestions = async (req, res) => {
     }
     const questions = await Question.findAll({
       include: [{ model: Option, as: "options" }],
+      where:{
+        status: "active"
+      }
+    });
+
+    successResponse(res, "Questions retrieved successfully", questions);
+  } catch (err) {
+    errorResponse(res, "Failed to retrieve questions", err.message, 500);
+  }
+};
+
+exports.getQuestionsStatus = async (req, res) => {
+  try {
+    if (req.user == undefined) {
+      return errorResponse(
+        res,
+        "Unauthorized",
+        "You are not authorized to perform this action",
+        403
+      );
+    }
+    const questions = await Question.findAll({
+      include: [{ model: Option, as: "options" }]
+     
     });
 
     successResponse(res, "Questions retrieved successfully", questions);

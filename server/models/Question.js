@@ -16,6 +16,10 @@ const Question = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    status: {
+      type: DataTypes.ENUM("active", "draft", "inactive"),
+      defaultValue: "active",
+    },
   },
   {
     timestamps: true,

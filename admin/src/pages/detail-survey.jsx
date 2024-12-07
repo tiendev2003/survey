@@ -75,7 +75,7 @@ const DetailSurvey = () => {
         ).unwrap();
         setLoading(false);
         toast.success("Gửi kết quả khảo sát thành công.");
-        history(-1);
+        history("/student/survey-list");
       } catch (error) {
         console.error(error);
         setLoading(false);

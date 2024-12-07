@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
+import { SortableContainer, SortableElement, arrayMove } from "react-sortable-hoc";
 import { toast } from "react-toastify";
 import Wrapper from "../../component/email/Wrapper";
 import Layout from "../../component/home/Layout";
 import { createQuestion } from "../../features/cauhoi/cauhoiSlice";
 import useMenu from "../../hooks/useMenu";
-import { SortableContainer, SortableElement, arrayMove } from "react-sortable-hoc";
 
 const TaoCauhoi = () => {
   useMenu();
@@ -62,9 +62,9 @@ const TaoCauhoi = () => {
     });
   };
 
-  const SortableItem = SortableElement(({ value, index }) => (
+  const SortableItem = SortableElement(({ value, index,chiso }) => (
     <li className="list-group-item d-flex justify-content-between align-items-center">
-      <span>{String.fromCharCode(65 + index)}. {value}</span>
+      <span>{String.fromCharCode(65 + chiso)}. {value}</span>
       <div>
         <button
           type="button"
@@ -87,7 +87,7 @@ const TaoCauhoi = () => {
   const SortableList = SortableContainer(({ items }) => (
     <ul className="list-group mb-3">
       {items.map((value, index) => (
-        <SortableItem key={`item-${index}`} index={index} value={value} />
+        <SortableItem key={`item-${index}`} index={index} value={value} chiso={index} />
       ))}
     </ul>
   ));
