@@ -440,7 +440,12 @@ exports.duplicateSurvey = async (req, res) => {
         {
           model: Question,
           as: "questions",
-          include: [{ model: Option }],
+          include: [
+            { model: Option, 
+              as: "options"
+
+            }
+          ],
         },
       ],
     });
