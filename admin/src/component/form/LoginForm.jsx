@@ -17,7 +17,7 @@ function LoginForm() {
       if (userRole === "lecturer") {
         navigate("/lecturer/profile");
       }
-      if (userRole === "student") {
+      if (userRole == "student") {
         navigate("/student/profile");
       }
     }

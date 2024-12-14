@@ -13,8 +13,7 @@ export const fetchLophocs = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosClient.get("/api/classes");
-      console.log(response.data.data)
-      return response.data;
+       return response.data;
     } catch (error) {
       return rejectWithValue(error);
     }

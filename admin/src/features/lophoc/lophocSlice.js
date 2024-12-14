@@ -105,7 +105,7 @@ const lophocSlice = createSlice({
       })
       .addCase(fetchClasses.fulfilled, (state, action) => {
         state.status = "succeeded";
-        console.log(action.payload);
+        console.log(action.payload.data);
         state.lophocs = action.payload.data;
         state.error = null;
       })
