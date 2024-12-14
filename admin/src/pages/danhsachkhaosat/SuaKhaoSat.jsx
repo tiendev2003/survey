@@ -12,7 +12,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Wrapper from "../../component/email/Wrapper";
 import Layout from "../../component/home/Layout";
-import { fetchQuestionsByExam } from "../../features/cauhoi/cauhoiSlice";
+import { fetchQuestions } from "../../features/cauhoi/cauhoiSlice";
 import { fetchSurvey, updateSurvey } from "../../features/khaosat/khaosatSlice";
 import useMenu from "../../hooks/useMenu";
 
@@ -57,7 +57,7 @@ const SuaKhaoSat = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchQuestionsByExam());
+    dispatch(fetchQuestions());
     dispatch(fetchSurvey(id));
   }, [dispatch, id]);
 
