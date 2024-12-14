@@ -28,6 +28,7 @@ import Profile from "./pages/profile";
 import Statistics from "./pages/statistics";
 import SurveyList from "./pages/survey-list";
 import Verification from "./pages/verification";
+import Account from "./pages/accounts";
 
 function Router() {
   const { isAuthenticated, userRole, loading } = useContext(AuthContext);
@@ -59,6 +60,7 @@ function Router() {
               <Route path="pending-surveys" element={<PendingSurveys />} />
               <Route path="statistics" element={<Statistics />} />
               <Route path="profile" element={<Profile />} />
+              <Route path="accounts" element={<Account />} />
             </Route>
           ) : userRole === "student" ? (
             <Route path="/student" element={<Layout />}>

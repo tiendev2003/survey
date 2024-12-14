@@ -30,3 +30,22 @@ exports.getUserById = async (req, res) => {
     errorResponse(res, "Failed to get user detail", error.message, 500);
   }
 };
+
+exports.addMultipleUsers = async (req, res) => {
+  try {
+    const users = req.body.users;
+
+    // Validate user data
+    for (const user of users) {
+      if (!user.username || !user.email) {
+        return errorResponse(res, "Invalid user data format", null, 400);
+      }
+    }
+
+    // Check if users already exist and ignore duplicates
+    const createdUsers = await User.bulkCreate(users, { ignoreDuplicates: true });
+    successResponse(res, "Users added successfully", createdUsers);
+  } catch (error) {
+    errorResponse(res, "Failed to add users", error.message, 500);
+  }
+};
