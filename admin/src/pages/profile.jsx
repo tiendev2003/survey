@@ -11,6 +11,7 @@ function Profile() {
     name: userInformation.name,
     email: userInformation.email,
     phone: userInformation.phone,
+    password: "", // Add password field
   });
 
   useEffect(() => {
@@ -18,6 +19,7 @@ function Profile() {
       name: userInformation.username,
       email: userInformation.email,
       phone: userInformation.phone,
+      password: "", // Add password field
     });
   }, [userInformation]);
   const handleSubmit = async (e) => {
@@ -81,10 +83,22 @@ function Profile() {
                           className="crancy__item-input"
                           type="text"
                           placeholder="demo3243@gmail.com"
-                          required="required"
+                      
                           value={formData.phone}
                           onChange={(e) =>
                             setFormData({ ...formData, phone: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="crancy__item-form--group mg-top-form-20">
+                        <label className="crancy__item-label">Password</label>
+                        <input
+                          className="crancy__item-input"
+                          type="text"
+                          placeholder="Enter new password"
+                          value={formData.password}
+                          onChange={(e) =>
+                            setFormData({ ...formData, password: e.target.value })
                           }
                         />
                       </div>
