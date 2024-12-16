@@ -243,22 +243,19 @@ const DanhSachKhaoSat = () => {
                                   `/lecturer/manage-surveys/edit/${survey.id}`
                                 )
                               }
-                              disabled={isPastEndDate}
-                            >
+                             >
                               <FontAwesomeIcon icon={faEdit} />
                             </button>
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() => handleCopy(survey.id)}
-                              disabled={isPastEndDate}
-                            >
+                             >
                               <FontAwesomeIcon icon={faCopy} />
                             </button>
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() => handleDelete(survey.id)}
-                              disabled={isPastEndDate}
-                            >
+                             >
                               <FontAwesomeIcon icon={faTrash} />
                             </button>
                             <button
@@ -266,15 +263,13 @@ const DanhSachKhaoSat = () => {
                               onClick={() =>
                                 handleSendSurveyToGroups(survey.id)
                               }
-                              disabled={isPastEndDate}
-                            >
+                             >
                               <FontAwesomeIcon icon={faEnvelope} />
                             </button>
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() => handleShareSurveyLink(survey.id)}
-                              disabled={isPastEndDate}
-                            >
+                             >
                               <FontAwesomeIcon icon={faClone} />
                             </button>
                           </td>
