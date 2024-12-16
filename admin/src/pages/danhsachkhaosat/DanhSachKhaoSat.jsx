@@ -240,7 +240,7 @@ const DanhSachKhaoSat = () => {
                               style={{ height: "30px", width: "30px" }}
                               onClick={() =>
                                 navigate(
-                                  `/lecturer/manage-surveys/edit/${survey.id}`
+                                  `/anh csurveys/edit/${survey.id}`
                                 )
                               }
                              >

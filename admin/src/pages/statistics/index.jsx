@@ -7,8 +7,11 @@ import {
   Title,
   Tooltip,
 } from "chart.js";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import React, { useEffect, useRef, useState } from "react";
 import { Bar } from "react-chartjs-2";
+import { FaFileExport } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Wrapper from "../../component/email/Wrapper";
@@ -124,6 +127,44 @@ console.log(thongke)
     dispatch(fetchSurveyStatis(survey.id));
   };
 
+  const csvData = khaosats.map((survey) => ({
+    ID: survey.id,
+    Title: survey.title,
+    Description: survey.description,
+    "Start Date": new Date(survey.start_date).toLocaleDateString(),
+    "End Date": new Date(survey.end_date).toLocaleDateString(),
+  }));
+
+  const exportChartAsImage = (chartRef, filename) => {
+    const chart = chartRef.current;
+    if (chart) {
+      const url = chart.toBase64Image();
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+    }
+  };
+
+  const exportChartsAsPDF = () => {
+    const doc = new jsPDF();
+    const chart1 = chart1Ref.current;
+    const chart2 = chart2Ref.current;
+
+    if (chart1 && chart2) {
+      const chart1Image = chart1.toBase64Image();
+      const chart2Image = chart2.toBase64Image();
+
+      doc.text("Class Chart", 10, 10);
+      doc.addImage(chart1Image, "PNG", 10, 20, 180, 80);
+      doc.addPage();
+      doc.text("Department Chart", 10, 10);
+      doc.addImage(chart2Image, "PNG", 10, 20, 180, 80);
+
+      doc.save("charts.pdf");
+    }
+  };
+
   useMenu();
   return (
     <Layout>
@@ -132,6 +173,9 @@ console.log(thongke)
           <div className="crancy-table crancy-table__support mg-top-30">
             <div className="crancy-table__heading">
               <h3 className="crancy-table__title mb-0">Danh sách khảo sát</h3>
+              {/* <button onClick={exportChartsAsPDF} className="btn btn-primary">
+                <FaFileExport /> Export Charts as PDF
+              </button> */}
             </div>
             <div className="tab-content" id="myTabContent">
               <div
@@ -161,6 +205,9 @@ console.log(thongke)
                       <th className="crancy-table__column-5 crancy-table__h5">
                         End Date
                       </th>
+                      <th className="crancy-table__column-6 crancy-table__h6">
+                        Export
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="crancy-table__body">
@@ -189,6 +236,11 @@ console.log(thongke)
                           </td>
                           <td className="crancy-table__column-5 crancy-table__data-5">
                             {new Date(survey.end_date).toLocaleDateString()}
+                          </td>
+                          <td className="crancy-table__column-6 crancy-table__data-6">
+                            <button onClick={exportChartsAsPDF} className="btn btn-secondary">
+                              <FaFileExport />
+                            </button>
                           </td>
                         </tr>
                       );
@@ -291,8 +343,8 @@ console.log(thongke)
           </div>
           {selectedSurvey && (
             <div className="charts-container">
-              <Bar data={classData} options={classOptions} />
-              <Bar data={departmentData} options={departmentOptions} />
+              <Bar ref={chart1Ref} data={classData} options={classOptions} />
+              <Bar ref={chart2Ref} data={departmentData} options={departmentOptions} />
             </div>
           )}
         </div>
