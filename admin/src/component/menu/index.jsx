@@ -122,6 +122,22 @@ function Menu({ toggleMenu, menu }) {
                       </span>
                     </Link>
                   </li>
+                  <li className={activeMenu === "chude" ? "active" : ""}>
+                    <Link
+                      className="collapsed"
+                      to="/lecturer/manage-typed"
+                      onClick={() => handleMenuClick("chude")}
+                    >
+                      <span className="menu-bar__text">
+                        <span className="crancy-menu-icon crancy-svg-icon__v1">
+                          <svg width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zm0-10v2h14V7H7z"/>
+                          </svg>
+                        </span>
+                        <span className="menu-bar__name">Chủ đề khảo sát</span>
+                      </span>
+                    </Link>
+                  </li>
                   <li className={activeMenu === "profile" ? "active" : ""}>
                     <Link
                       className="collapsed"

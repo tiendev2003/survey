@@ -4,6 +4,8 @@ import { useContext } from "react";
 import Layout from "./component/layout";
 import LoginLayout from "./component/layout/LoginLayout";
 import { AuthContext } from "./context/AuthContext";
+import Account from "./pages/accounts";
+import DanhSachChuDe from "./pages/chudekhaosat/DanhSachChuDe";
 import ConfirmPassword from "./pages/confirm-password";
 import CreateAccount from "./pages/create-account";
 import ChinhSuaCauhoi from "./pages/danhsachcauhoi/ChinhSuaCauhoi";
@@ -28,7 +30,8 @@ import Profile from "./pages/profile";
 import Statistics from "./pages/statistics";
 import SurveyList from "./pages/survey-list";
 import Verification from "./pages/verification";
-import Account from "./pages/accounts";
+import TaoChuDe from "./pages/chudekhaosat/TaoChuDe";
+import ChinhSuaChuDe from "./pages/chudekhaosat/ChinhSuaChuDe";
 
 function Router() {
   const { isAuthenticated, userRole, loading } = useContext(AuthContext);
@@ -81,6 +84,9 @@ function Router() {
                 path="manage-questions/edit/:id"
                 element={<ChinhSuaCauhoi />}
               />
+              <Route path="manage-typed" element={<DanhSachChuDe />} />
+              <Route path="manage-typed/create" element={<TaoChuDe />} />
+              <Route path="manage-typed/edit/:id" element={<ChinhSuaChuDe />} />
               <Route path="profile" element={<Profile />} />
             </Route>
           ) : (

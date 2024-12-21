@@ -93,7 +93,7 @@ export const fetchQuestionsByExam = createAsyncThunk(
   "questions/fetchQuestionsByExam",
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get("/api/questions/status/true", {
+      const response = await axiosClient.get(`/api/questions/status/true?survey_type_id=${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

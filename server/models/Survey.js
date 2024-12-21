@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+const SurveyType = require('./SurveyType'); // Add this line
 
 const Survey = sequelize.define('Survey', {
   title: {
@@ -33,8 +34,19 @@ const Survey = sequelize.define('Survey', {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  survey_type_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: SurveyType,
+      key: 'id',
+    },
+  },
 }, {
   timestamps: true,
 });
+
+Survey.belongsTo(SurveyType, { foreignKey: 'survey_type_id', as: 'surveyType' });
+SurveyType.hasMany(Survey, { foreignKey: 'survey_type_id', as: 'surveys' });
 
 module.exports = Survey;

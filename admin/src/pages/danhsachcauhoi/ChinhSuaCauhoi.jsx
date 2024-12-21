@@ -9,6 +9,7 @@ import {
   editQuestion,
   fetchQuestionById,
 } from "../../features/cauhoi/cauhoiSlice";
+import { fetchTopics } from "../../features/chude/chudeSlice";
 import useMenu from "../../hooks/useMenu";
 
 const ChinhSuaCauhoi = () => {
@@ -16,10 +17,12 @@ const ChinhSuaCauhoi = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { cauhoi } = useSelector((state) => state.cauhoi);
+  const { chudes } = useSelector((state) => state.chude);
   const [questionData, setQuestionData] = useState({
     question_text: "",
     question_type: "text",
     options: [],
+    survey_type_id: "",
   });
   const [newOption, setNewOption] = useState("");
   const [editingOptionIndex, setEditingOptionIndex] = useState(null);
@@ -27,6 +30,7 @@ const ChinhSuaCauhoi = () => {
 
   useEffect(() => {
     dispatch(fetchQuestionById(id));
+    dispatch(fetchTopics());
   }, [dispatch, id]);
 
   useEffect(() => {
@@ -34,6 +38,7 @@ const ChinhSuaCauhoi = () => {
       setQuestionData({
         ...cauhoi,
         options: cauhoi?.options?.map((option) => option.option_text),
+        survey_type_id: cauhoi.survey_type_id,
       });
       setLoading(false);
     } else {
@@ -45,6 +50,7 @@ const ChinhSuaCauhoi = () => {
     const { name, value } = e.target;
     setQuestionData({ ...questionData, [name]: value });
   };
+
   const handleAddOption = () => {
     if (!newOption.trim()) {
       alert("Option text cannot be empty.");
@@ -185,6 +191,26 @@ const ChinhSuaCauhoi = () => {
                                       </option>
                                       <option value="rating">Đánh Giá</option>
                                       <option value="boolean">Đúng/Sai</option>
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="row">
+                                <div className="col-lg-6 col-md-6 col-12">
+                                  <div className="crancy-main-form__group crancy-main-form__group--rmargin">
+                                    <select
+                                      className="form-select"
+                                      name="survey_type_id"
+                                      value={questionData.survey_type_id}
+                                      onChange={handleChange}
+                                      required
+                                    >
+                                      <option value="">Chọn Chủ Đề</option>
+                                      {chudes.map((chude) => (
+                                        <option key={chude.id} value={chude.id}>
+                                          {chude.name}
+                                        </option>
+                                      ))}
                                     </select>
                                   </div>
                                 </div>

@@ -4,6 +4,7 @@ import {
   faEdit,
   faEnvelope,
   faTrash,
+  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -42,9 +43,12 @@ const DanhSachKhaoSat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [show, setShow] = useState(25);
   const [page, setPage] = useState(1);
+  const [confirmSendAll, setConfirmSendAll] = useState(false);
+
   useEffect(() => {
     dispatch(fetchSurveys());
   }, [dispatch]);
+
   const handleDelete = (id) => {
     dispatch(deleteSurvey(id))
       .then(() => {
@@ -54,6 +58,7 @@ const DanhSachKhaoSat = () => {
         toast.error("Failed to delete survey");
       });
   };
+
   useEffect(() => {
     dispatch(fetchKhoas(123));
     dispatch(fetchLophocs(123));
@@ -69,6 +74,7 @@ const DanhSachKhaoSat = () => {
       toast.error("Failed to copy survey");
     }
   };
+
   const handleShareSurveyLink = async (id) => {
     try {
       const res = await dispatch(createSurveyLink(id)).unwrap();
@@ -84,6 +90,25 @@ const DanhSachKhaoSat = () => {
     console.log(id);
     setSelectedSurvey(id);
     setShowModal(true);
+  };
+
+  const handleSendSurveyToAllStudents = async (id) => {
+    setIsLoading(true);
+    try {
+      await dispatch(
+        sendSurvey({
+          id,
+          type: "all_students",
+        })
+      ).unwrap();
+      toast.success("Survey sent to all students successfully");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.error || "Failed to send survey to all students");
+    } finally {
+      setIsLoading(false);
+      setConfirmSendAll(false);
+    }
   };
 
   const handleModalClose = () => {
@@ -239,23 +264,21 @@ const DanhSachKhaoSat = () => {
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() =>
-                                navigate(
-                                  `/anh csurveys/edit/${survey.id}`
-                                )
+                                navigate(`edit/${survey.id}`)
                               }
-                             >
+                            >
                               <FontAwesomeIcon icon={faEdit} />
                             </button>
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() => handleCopy(survey.id)}
-                             >
+                            >
                               <FontAwesomeIcon icon={faCopy} />
                             </button>
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() => handleDelete(survey.id)}
-                             >
+                            >
                               <FontAwesomeIcon icon={faTrash} />
                             </button>
                             <button
@@ -263,14 +286,24 @@ const DanhSachKhaoSat = () => {
                               onClick={() =>
                                 handleSendSurveyToGroups(survey.id)
                               }
-                             >
+                            >
                               <FontAwesomeIcon icon={faEnvelope} />
                             </button>
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() => handleShareSurveyLink(survey.id)}
-                             >
+                            >
                               <FontAwesomeIcon icon={faClone} />
+                            </button>
+                            <button
+                              style={{ height: "30px", width: "30px" }}
+                              onClick={() => {
+                                setSelectedSurvey(survey.id);
+                                setConfirmSendAll(true);
+                              }}
+                              disabled={isLoading}
+                            >
+                              <FontAwesomeIcon icon={faUsers} />
                             </button>
                           </td>
                         </tr>
@@ -457,6 +490,49 @@ const DanhSachKhaoSat = () => {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+        {confirmSendAll && (
+          <div className="modal show" style={{ display: "block" }}>
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">Confirm Send to All Students</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setConfirmSendAll(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <p>Are you sure you want to send this survey to all students?</p>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setConfirmSendAll(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => handleSendSurveyToAllStudents(selectedSurvey)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Sending..." : "Confirm"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
             </div>
           </div>
         )}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -9,19 +9,7 @@ function LoginForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      if (userRole === "admin") {
-        navigate("/admin/profile");
-      }
-      if (userRole === "lecturer") {
-        navigate("/lecturer/profile");
-      }
-      if (userRole == "student") {
-        navigate("/student/profile");
-      }
-    }
-  }, [isAuthenticated, userRole, navigate]);
+ 
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -8,6 +8,7 @@ const Report = require("./Report");
 const Class = require("./Class");
 const Department = require("./Department");
 const SurveyResponse = require("./SurveyResponse");
+const SurveyType = require('./SurveyType'); // Add this line
 
 // 1-N: User -> Survey
 User.hasMany(Survey, { foreignKey: "created_by" });
@@ -89,6 +90,13 @@ Class.belongsToMany(Survey, {
 Question.belongsTo(User, { foreignKey: "created_by" });
 User.hasMany(Question, { foreignKey: "created_by" });
 
+// Add associations for SurveyType
+Survey.belongsTo(SurveyType, { foreignKey: 'survey_type_id' });
+SurveyType.hasMany(Survey, { foreignKey: 'survey_type_id' });
+
+Question.belongsTo(SurveyType, { foreignKey: 'survey_type_id' });
+SurveyType.hasMany(Question, { foreignKey: 'survey_type_id' });
+
 User.prototype.canAccessSurvey = async function (surveyId) {
   const count = await SurveyParticipant.count({
     where: {
@@ -110,4 +118,5 @@ module.exports = {
   Class,
   Department,
   SurveyResponse,
+  SurveyType,
 };

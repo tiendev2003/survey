@@ -1,23 +1,30 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { SortableContainer, SortableElement, arrayMove } from "react-sortable-hoc";
 import { toast } from "react-toastify";
 import Wrapper from "../../component/email/Wrapper";
 import Layout from "../../component/home/Layout";
 import { createQuestion } from "../../features/cauhoi/cauhoiSlice";
+import { fetchTopics } from "../../features/chude/chudeSlice";
 import useMenu from "../../hooks/useMenu";
 
 const TaoCauhoi = () => {
   useMenu();
 
   const dispatch = useDispatch();
+  const { chudes } = useSelector((state) => state.chude);
   const [questionData, setQuestionData] = useState({
     question_text: "",
     question_type: "text",
     options: [],
+    survey_type_id: "",
   });
   const [newOption, setNewOption] = useState("");
   const [editingOptionIndex, setEditingOptionIndex] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchTopics());
+  }, [dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,8 +36,6 @@ const TaoCauhoi = () => {
       alert("Option text cannot be empty.");
       return;
     }
-    
-    
     if (editingOptionIndex !== null) {
       const updatedOptions = [...questionData.options];
       updatedOptions[editingOptionIndex] = newOption;
@@ -62,7 +67,7 @@ const TaoCauhoi = () => {
     });
   };
 
-  const SortableItem = SortableElement(({ value, index,chiso }) => (
+  const SortableItem = SortableElement(({ value, index, chiso }) => (
     <li className="list-group-item d-flex justify-content-between align-items-center">
       <span>{String.fromCharCode(65 + chiso)}. {value}</span>
       <div>
@@ -95,12 +100,14 @@ const TaoCauhoi = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(createQuestion(questionData)).unwrap();
+      console.log(questionData);
+       await dispatch(createQuestion(questionData)).unwrap();
       toast.success("Question created successfully!");
       setQuestionData({
         question_text: "",
         question_type: "text",
         options: [],
+        survey_type_id: "",
       });
     } catch (error) {
       toast.error("Failed to create question.");
@@ -147,6 +154,26 @@ const TaoCauhoi = () => {
                                 </option>
                                 <option value="rating">Đánh Giá</option>
                                 <option value="boolean">Đúng/Sai</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-lg-6 col-md-6 col-12">
+                            <div className="crancy-main-form__group crancy-main-form__group--rmargin">
+                              <select
+                                className="form-select"
+                                name="survey_type_id"
+                                value={questionData.survey_type_id}
+                                onChange={handleChange}
+                                required
+                              >
+                                <option value="">Chọn Chủ Đề</option>
+                                {chudes.map((chude) => (
+                                  <option key={chude.id} value={chude.id}>
+                                    {chude.name}
+                                  </option>
+                                ))}
                               </select>
                             </div>
                           </div>

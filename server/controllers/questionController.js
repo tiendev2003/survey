@@ -1,14 +1,15 @@
-const { Question, Option } = require("../models");
+const { Question, Option, SurveyType } = require("../models"); // Add SurveyType
 const { successResponse, errorResponse } = require("../utils/response");
 
 exports.createQuestion = async (req, res) => {
-  const { question_text, question_type, options } = req.body;
-
+  const { question_text, question_type, options, survey_type_id } = req.body; // Add survey_type_id
+console.log(req.body);
   try {
     const question = await Question.create({
       question_text,
       question_type,
       created_by: req.user.id,
+      survey_type_id, // Add survey_type_id
     });
 
     if (question_type === "multiple_choice" && Array.isArray(options)) {
@@ -25,6 +26,16 @@ exports.createQuestion = async (req, res) => {
   }
 };
 
+exports.getAllQuestions = async (req, res) => {
+  try {
+    const questions = await Question.findAll({
+      include: [{ model: Option, as: "options" }],
+    });
+  } catch (err) {
+    errorResponse(res, "Failed to retrieve questions", err.message, 500);
+  }
+};
+
 exports.getQuestions = async (req, res) => {
   try {
     if (req.user == undefined) {
@@ -37,9 +48,9 @@ exports.getQuestions = async (req, res) => {
     }
     const questions = await Question.findAll({
       include: [{ model: Option, as: "options" }],
-      where:{
-        status: "active"
-      }
+      where: {
+        status: "active",
+      },
     });
 
     successResponse(res, "Questions retrieved successfully", questions);
@@ -59,8 +70,11 @@ exports.getQuestionsStatus = async (req, res) => {
       );
     }
     const questions = await Question.findAll({
-      include: [{ model: Option, as: "options" }]
-     
+      include: [{ model: Option, as: "options" }],
+      where: {
+        survey_type_id: req.query.survey_type_id, // Filter by survey_type_id
+        status: "active",
+      },
     });
 
     successResponse(res, "Questions retrieved successfully", questions);
@@ -70,7 +84,7 @@ exports.getQuestionsStatus = async (req, res) => {
 };
 
 exports.editQuestion = async (req, res) => {
-  const { question_text, question_type, options } = req.body;
+  const { question_text, question_type, options, survey_type_id } = req.body; // Add survey_type_id
   const { id } = req.params;
 
   try {
@@ -88,6 +102,7 @@ exports.editQuestion = async (req, res) => {
     await question.update({
       question_text,
       question_type,
+      survey_type_id, // Add survey_type_id
     });
 
     if (question_type === "multiple_choice" && Array.isArray(options)) {

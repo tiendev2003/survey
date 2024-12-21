@@ -31,6 +31,7 @@ app.use("/api/users", require("./routes/user"));
 app.use("/api/surveys",  require("./routes/survey"));
 app.use("/api/classes", require("./routes/class"));
 app.use("/api/questions", require("./routes/question"));
+app.use("/api/topics", require("./routes/surveyType"));
 app.use((err, req, res, next) => {
   console.error("Internal server error:", err.stack); // Ghi log lỗi
   errorResponse(res, "Internal server error", err.message, 500); // Trả về lỗi chuẩn hóa

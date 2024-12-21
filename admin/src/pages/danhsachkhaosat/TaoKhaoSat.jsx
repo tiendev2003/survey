@@ -14,7 +14,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { fetchQuestions } from "../../features/cauhoi/cauhoiSlice";
+import { fetchQuestionsByExam } from "../../features/cauhoi/cauhoiSlice";
+import { fetchTopics } from "../../features/chude/chudeSlice";
 import { createSurvey } from "../../features/khaosat/khaosatSlice";
 
 const TaoKhaoSat = () => {
@@ -22,6 +23,7 @@ const TaoKhaoSat = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { cauhois ,status} = useSelector((state) => state.cauhoi);
+  const { chudes } = useSelector((state) => state.chude);
   const [surveyData, setSurveyData] = useState({
     title: "",
     description: "",
@@ -29,6 +31,7 @@ const TaoKhaoSat = () => {
     end_date: "",
     questions: [],
     question_ids: [], // Danh sách ID các câu hỏi có sẵn được chọn
+    survey_type_id: "",
   });
 
   const [newQuestion, setNewQuestion] = useState({
@@ -56,8 +59,14 @@ const TaoKhaoSat = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchQuestions());
+    dispatch(fetchTopics());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (surveyData.survey_type_id) {
+      dispatch(fetchQuestionsByExam(surveyData.survey_type_id));
+    }
+  }, [dispatch, surveyData.survey_type_id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -230,6 +239,26 @@ const TaoKhaoSat = () => {
                                 onChange={handleChange}
                                 required
                               />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-lg-6 col-md-6 col-12">
+                            <div className="crancy-main-form__group crancy-main-form__group--rmargin">
+                              <select
+                                className="form-select"
+                                name="survey_type_id"
+                                value={surveyData.survey_type_id}
+                                onChange={handleChange}
+                                required
+                              >
+                                <option value="">Chọn Chủ Đề</option>
+                                {chudes.map((chude) => (
+                                  <option key={chude.id} value={chude.id}>
+                                    {chude.name}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                           </div>
                         </div>

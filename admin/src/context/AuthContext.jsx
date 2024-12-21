@@ -52,8 +52,8 @@ export const AuthProvider = ({ children }) => {
         if (response.data.data.user.role === "lecturer") {
           window.location.href = "/lecturer";
         }
-        if (response.data.data.user.role === "user") {
-          window.location.href = "/user";
+        if (response.data.data.user.role === "student") {
+          window.location.href = "/student";
         }
       } else {
         throw new Error("Login failed");

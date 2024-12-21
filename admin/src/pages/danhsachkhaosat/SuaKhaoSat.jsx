@@ -12,7 +12,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Wrapper from "../../component/email/Wrapper";
 import Layout from "../../component/home/Layout";
-import { fetchQuestions } from "../../features/cauhoi/cauhoiSlice";
+import { fetchQuestionsByExam, } from "../../features/cauhoi/cauhoiSlice";
+import { fetchTopics } from "../../features/chude/chudeSlice";
 import { fetchSurvey, updateSurvey } from "../../features/khaosat/khaosatSlice";
 import useMenu from "../../hooks/useMenu";
 
@@ -22,6 +23,7 @@ const SuaKhaoSat = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const { cauhois } = useSelector((state) => state.cauhoi);
+  const { chudes } = useSelector((state) => state.chude);
   const { khaosat, status } = useSelector((state) => state.khaosat);
   const [surveyData, setSurveyData] = useState({
     title: "",
@@ -30,6 +32,7 @@ const SuaKhaoSat = () => {
     end_date: "",
     questions: [],
     question_ids: [],
+    survey_type_id: "",
   });
 
   const [newQuestion, setNewQuestion] = useState({
@@ -57,9 +60,15 @@ const SuaKhaoSat = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchQuestions());
+    dispatch(fetchTopics());
     dispatch(fetchSurvey(id));
   }, [dispatch, id]);
+
+  useEffect(() => {
+    if (surveyData.survey_type_id) {
+      dispatch(fetchQuestionsByExam(surveyData.survey_type_id));
+    }
+  }, [dispatch, surveyData.survey_type_id]);
 
   useEffect(() => {
     if (khaosat && khaosat.id) {
@@ -73,6 +82,7 @@ const SuaKhaoSat = () => {
         start_date: khaosat.start_date.split("T")[0],
         end_date: khaosat.end_date.split("T")[0],
         question_ids: khaosat.questions.map((question) => question.id),
+        survey_type_id: khaosat.survey_type_id,
       });
     }
   }, [khaosat]);
@@ -251,6 +261,25 @@ const SuaKhaoSat = () => {
                                 onChange={handleChange}
                                 required
                               />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="row">
+                          <div className="col-lg-6 col-md-6 col-12">
+                            <div className="crancy-main-form__group crancy-main-form__group--rmargin">
+                              <select
+                                className="form-select"
+                                name="survey_type_id"
+                                value={surveyData.survey_type_id}
+                                onChange={handleChange}
+                              >
+                                <option value="">Chọn Loại Khảo Sát</option>
+                                {chudes.map((chude) => (
+                                  <option key={chude.id} value={chude.id}>
+                                    {chude.name}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                           </div>
                         </div>

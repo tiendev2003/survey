@@ -5,6 +5,7 @@ const {
   Response,
   Option,
   SurveyParticipant,
+  SurveyType, // Add this line
 } = require("../models");
 const { successResponse, errorResponse } = require("../utils/response");
 
@@ -18,8 +19,7 @@ const sequelize = require("../config/db");
 const schedule = require('node-schedule');
 
 exports.createSurvey = async (req, res) => {
-  const { title, description, start_date, end_date, question_ids, questions } =
-    req.body;
+  const { title, description, start_date, end_date, question_ids, questions, survey_type_id } = req.body; // Add survey_type_id
 
   try {
     // Tạo khảo sát
@@ -29,6 +29,7 @@ exports.createSurvey = async (req, res) => {
       start_date,
       end_date,
       created_by: req.user.id,
+      survey_type_id, // Add survey_type_id
     });
 
     // Liên kết câu hỏi có sẵn
@@ -47,6 +48,7 @@ exports.createSurvey = async (req, res) => {
           question_text: q.text,
           question_type: q.type,
           created_by: req.user.id,
+          survey_type_id: survey_type_id, // Add survey_type_id
           status: "draft",
         });
 
@@ -94,8 +96,7 @@ exports.getSurveys = async (req, res) => {
 
 exports.updateSurvey = async (req, res) => {
   const { id } = req.params;
-  const { title, description, start_date, end_date, question_ids, questions } =
-    req.body;
+  const { title, description, start_date, end_date, question_ids, questions, survey_type_id } = req.body; // Add survey_type_id
   console.log(req.body);
   try {
     const survey = await Survey.findByPk(id);
@@ -107,6 +108,7 @@ exports.updateSurvey = async (req, res) => {
     survey.description = description || survey.description;
     survey.start_date = start_date || survey.start_date;
     survey.end_date = end_date || survey.end_date;
+    survey.survey_type_id = survey_type_id || survey.survey_type_id; // Add survey_type_id
 
     await survey.save();
 
@@ -131,6 +133,7 @@ exports.updateSurvey = async (req, res) => {
           question_text: q.text,
           question_type: q.type,
           created_by: req.user.id,
+          survey_type_id: survey_type_id, // Add survey_type_id
         });
 
         if (q.type === "multiple_choice" && Array.isArray(q.options)) {
@@ -363,11 +366,19 @@ exports.sendSurveyToGroups = async (req, res) => {
           survey_id: survey.id,
         }));
       await SurveyParticipant.bulkCreate(newParticipants);
-    } else {
+    } 
+    // nếu type = all thì gửi cho tất cả user
+    else if (type === "all_students") {
+      const users = await User.findAll({
+        attributes: ["email", "id"],
+      });
+      emailList = users.map((user) => user.email);
+
+    }else {
       return errorResponse(
         res,
         "Invalid type",
-        'Type must be "department" or "class"',
+        "Invalid group type provided",
         400
       );
     }
