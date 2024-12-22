@@ -162,11 +162,11 @@ const DetailSurvey = () => {
                                       id={`question_${question.id}_${option.id}`}
                                       name={`question_${question.id}`}
                                       onChange={() =>
-                                        handleChange(question.id, option.id)
+                                        handleChange(question.id, option.option_text)
                                       }
                                       type="radio"
                                       checked={
-                                        responses[question.id] == option.id
+                                        responses[question.id] == option.option_text
                                       }
                                     />
                                   </div>
@@ -184,8 +184,7 @@ const DetailSurvey = () => {
                                   handleChange(question.id, e.target.value)
                                 }
                                 placeholder="Tin nhắn"
-                                required="required"
-                                value={responses[question.id] || ""}
+                                 value={responses[question.id] || ""}
                               ></textarea>
                             </div>
                           )}

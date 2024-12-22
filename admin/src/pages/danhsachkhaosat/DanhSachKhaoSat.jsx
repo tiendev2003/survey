@@ -264,7 +264,7 @@ const DanhSachKhaoSat = () => {
                             <button
                               style={{ height: "30px", width: "30px" }}
                               onClick={() =>
-                                navigate(`edit/${survey.id}`)
+                                navigate(`/lecturer/manage-surveys/edit/${survey.id}`)
                               }
                             >
                               <FontAwesomeIcon icon={faEdit} />

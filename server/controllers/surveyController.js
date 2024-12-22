@@ -680,11 +680,36 @@ exports.getSurveyResponseStats = async (req, res) => {
       include: [{ model: Department, attributes: ["name"] }],
     });
 
+    const questionStats = await SurveyResponse.findAll({
+      where: { survey_id: surveyId },
+      attributes: [
+        "question_id",
+        [sequelize.fn("COUNT", sequelize.col("question_id")), "response_count"], // Fix column name
+      ],
+
+      group: ["question_id"],
+      include: [{ model: Question, attributes: ["question_text"] }],
+    });
+
+    const optionStats = await SurveyResponse.findAll({
+      where: { survey_id: surveyId },
+      attributes: [
+        "answer_text",
+        "question_id",
+        [sequelize.fn("COUNT", sequelize.col("answer_text")), "response_count"],
+      ],
+      group: ["answer_text","question_id" ],
+      include: [{ model: Question, attributes: ["question_text"] }],
+    });
+
     successResponse(res, "Survey response statistics retrieved successfully", {
       classStats,
       departmentStats,
+      questionStats, // Add question stats
+      optionStats, // Add option stats
     });
   } catch (err) {
+    console.log(err);
     errorResponse(
       res,
       "Failed to retrieve survey response statistics",

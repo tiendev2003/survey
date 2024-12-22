@@ -40,6 +40,8 @@ const Statistics = () => {
   const [isLoading, setIsLoading] = useState(false);
   const chart1Ref = useRef(null);
   const chart2Ref = useRef(null);
+  const chart3Ref = useRef(null);
+  const chart4Ref = useRef(null);
   
   useEffect(() => {
     dispatch(fetchSurveyAllAdmin());
@@ -69,6 +71,32 @@ console.log(thongke)
         data: thongke?.departmentStats?.map((stat) => stat?.response_count) || [],
         backgroundColor: ["rgba(255, 99, 132, 0.2)"],
         borderColor: ["rgba(255, 99, 132, 1)"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const questionData = {
+    labels: thongke?.questionStats?.map((stat) => stat.Question.question_text) || [],
+    datasets: [
+      {
+        label: "Số lượng phản hồi",
+        data: thongke?.questionStats?.map((stat) => stat.response_count) || [],
+        backgroundColor: ["rgba(54, 162, 235, 0.2)"],
+        borderColor: ["rgba(54, 162, 235, 1)"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const optionData = {
+    labels: thongke?.optionStats?.map((stat) => stat.answer_text) || [],
+    datasets: [
+      {
+        label: "Số lượng phản hồi",
+        data: thongke?.optionStats?.map((stat) => stat.response_count) || [],
+        backgroundColor: ["rgba(255, 206, 86, 0.2)"],
+        borderColor: ["rgba(255, 206, 86, 1)"],
         borderWidth: 1,
       },
     ],
@@ -117,6 +145,42 @@ console.log(thongke)
     },
   };
 
+  const questionOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Số lượng phản hồi",
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Câu hỏi",
+        },
+      },
+    },
+  };
+
+  const optionOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Số lượng phản hồi",
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: "Câu trả lời",
+        },
+      },
+    },
+  };
+
   const indexOfLastSurvey = currentPage * surveysPerPage;
   const indexOfFirstSurvey = indexOfLastSurvey - surveysPerPage;
   const currentSurveys = khaosats.slice(indexOfFirstSurvey, indexOfLastSurvey);
@@ -150,16 +214,26 @@ console.log(thongke)
     const doc = new jsPDF();
     const chart1 = chart1Ref.current;
     const chart2 = chart2Ref.current;
+    const chart3 = chart3Ref.current;
+    const chart4 = chart4Ref.current;
 
-    if (chart1 && chart2) {
+    if (chart1 && chart2 && chart3 && chart4) {
       const chart1Image = chart1.toBase64Image();
       const chart2Image = chart2.toBase64Image();
+      const chart3Image = chart3.toBase64Image();
+      const chart4Image = chart4.toBase64Image();
 
       doc.text("Class Chart", 10, 10);
       doc.addImage(chart1Image, "PNG", 10, 20, 180, 80);
       doc.addPage();
       doc.text("Department Chart", 10, 10);
       doc.addImage(chart2Image, "PNG", 10, 20, 180, 80);
+      doc.addPage();
+      doc.text("Question Chart", 10, 10);
+      doc.addImage(chart3Image, "PNG", 10, 20, 180, 80);
+      doc.addPage();
+      doc.text("Option Chart", 10, 10);
+      doc.addImage(chart4Image, "PNG", 10, 20, 180, 80);
 
       doc.save("charts.pdf");
     }
@@ -345,6 +419,8 @@ console.log(thongke)
             <div className="charts-container">
               <Bar ref={chart1Ref} data={classData} options={classOptions} />
               <Bar ref={chart2Ref} data={departmentData} options={departmentOptions} />
+              <Bar ref={chart3Ref} data={questionData} options={questionOptions} />
+              <Bar ref={chart4Ref} data={optionData} options={optionOptions} />
             </div>
           )}
         </div>
