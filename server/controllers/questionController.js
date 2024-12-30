@@ -1,4 +1,4 @@
-const { Question, Option, SurveyType } = require("../models"); // Add SurveyType
+const { Question, Option, SurveyType, Survey } = require("../models"); // Add Survey
 const { successResponse, errorResponse } = require("../utils/response");
 
 exports.createQuestion = async (req, res) => {
@@ -125,7 +125,9 @@ exports.deleteQuestion = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const question = await Question.findByPk(id);
+    const question = await Question.findByPk(id, {
+      include: [{ model: Survey, as: "surveys" }], // Include surveys
+    });
 
     if (!question) {
       return errorResponse(
@@ -133,6 +135,15 @@ exports.deleteQuestion = async (req, res) => {
         "Question not found",
         "Question not found",
         404
+      );
+    }
+
+    if (question.surveys && question.surveys.length > 0) { // Check if question is part of any survey
+      return errorResponse(
+        res,
+        "Cannot delete question",
+        "Question is part of a survey and cannot be deleted",
+        400
       );
     }
 

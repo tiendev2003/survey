@@ -20,14 +20,14 @@ const DanhSachChuDe = () => {
     dispatch(fetchTopics());
   }, [dispatch]);
 
-  const handleDelete = (id) => {
-    dispatch(deleteTopic(id))
-      .then(() => {
-        toast.success("Topic deleted successfully");
-      })
-      .catch(() => {
-        toast.error("Failed to delete topic");
-      });
+  const handleDelete = async (id) => {
+    try {
+     await dispatch(deleteTopic(id)).unwrap();
+      toast.success("Xóa chủ đề thành công");
+    } catch (error) {
+      console.log(error);
+      toast.error("Xóa chủ đề thất bại");
+    }
   };
 
   const handlePageChange = (page) => {
@@ -93,7 +93,9 @@ const DanhSachChuDe = () => {
                           <button
                             style={{ height: "30px", width: "30px" }}
                             onClick={() =>
-                              navigate(`/lecturer/manage-typed/edit/${topic.id}`)
+                              navigate(
+                                `/lecturer/manage-typed/edit/${topic.id}`
+                              )
                             }
                           >
                             <FontAwesomeIcon icon={faEdit} />
@@ -138,7 +140,9 @@ const DanhSachChuDe = () => {
                             currentPage === 1 ? "disabled" : ""
                           }`}
                           id="crancy-table__main_previous"
-                          onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                          onClick={() =>
+                            currentPage > 1 && setCurrentPage(currentPage - 1)
+                          }
                         >
                           <a
                             aria-controls="crancy-table__main"
@@ -171,13 +175,15 @@ const DanhSachChuDe = () => {
                         ))}
                         <li
                           className={`paginate_button page-item next ${
-                            currentPage === Math.ceil(chudes.length / topicsPerPage)
+                            currentPage ===
+                            Math.ceil(chudes.length / topicsPerPage)
                               ? "disabled"
                               : ""
                           }`}
                           id="crancy-table__main_next"
                           onClick={() =>
-                            currentPage < Math.ceil(chudes.length / topicsPerPage) &&
+                            currentPage <
+                              Math.ceil(chudes.length / topicsPerPage) &&
                             setCurrentPage(currentPage + 1)
                           }
                         >

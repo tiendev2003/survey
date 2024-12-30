@@ -6,7 +6,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Wrapper from "../../component/email/Wrapper";
 import Layout from "../../component/home/Layout";
-import { deleteQuestion, fetchQuestions } from "../../features/cauhoi/cauhoiSlice";
+import {
+  deleteQuestion,
+  fetchQuestions,
+} from "../../features/cauhoi/cauhoiSlice";
 import useMenu from "../../hooks/useMenu";
 
 const DanhSachCauhoi = () => {
@@ -20,14 +23,17 @@ const DanhSachCauhoi = () => {
     dispatch(fetchQuestions());
   }, [dispatch]);
 
-  const handleDelete = (id) => {
-    dispatch(deleteQuestion(id))
-      .then(() => {
-        toast.success("Question deleted successfully");
-      })
-      .catch(() => {
-        toast.error("Failed to delete question");
-      });
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteQuestion(id)).unwrap();
+   
+      toast.success("Xóa câu hỏi thành công");
+    } catch (error) {
+      console.log(error);
+      toast.error("Xóa câu hỏi thất bại");
+    }finally{
+      await dispatch(fetchQuestions()).unwrap();
+    }
   };
 
   const handlePageChange = (page) => {
@@ -36,7 +42,10 @@ const DanhSachCauhoi = () => {
 
   const indexOfLastQuestion = currentPage * questionsPerPage;
   const indexOfFirstQuestion = indexOfLastQuestion - questionsPerPage;
-  const currentQuestions = cauhois.slice(indexOfFirstQuestion, indexOfLastQuestion);
+  const currentQuestions = cauhois.slice(
+    indexOfFirstQuestion,
+    indexOfLastQuestion
+  );
 
   useMenu();
 
@@ -84,10 +93,10 @@ const DanhSachCauhoi = () => {
                     </tr>
                   </thead>
                   <tbody className="crancy-table__body">
-                    {currentQuestions.map((question) => (
+                    {currentQuestions.map((question,index) => (
                       <tr key={question.id}>
                         <td className="crancy-table__column-1 crancy-table__data-1">
-                          {question.id}
+                          {index+1}
                         </td>
                         <td className="crancy-table__column-2 crancy-table__data-2">
                           {question.question_text}
@@ -99,7 +108,9 @@ const DanhSachCauhoi = () => {
                           <button
                             style={{ height: "30px", width: "30px" }}
                             onClick={() =>
-                              navigate(`/lecturer/manage-questions/edit/${question.id}`)
+                              navigate(
+                                `/lecturer/manage-questions/edit/${question.id}`
+                              )
                             }
                           >
                             <FontAwesomeIcon icon={faEdit} />
@@ -144,7 +155,9 @@ const DanhSachCauhoi = () => {
                             currentPage === 1 ? "disabled" : ""
                           }`}
                           id="crancy-table__main_previous"
-                          onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                          onClick={() =>
+                            currentPage > 1 && setCurrentPage(currentPage - 1)
+                          }
                         >
                           <a
                             aria-controls="crancy-table__main"
@@ -156,7 +169,9 @@ const DanhSachCauhoi = () => {
                           </a>
                         </li>
                         {Array.from(
-                          Array(Math.ceil(cauhois.length / questionsPerPage)).keys()
+                          Array(
+                            Math.ceil(cauhois.length / questionsPerPage)
+                          ).keys()
                         ).map((id, index) => (
                           <li
                             className={`paginate_button page-item ${
@@ -177,13 +192,15 @@ const DanhSachCauhoi = () => {
                         ))}
                         <li
                           className={`paginate_button page-item next ${
-                            currentPage === Math.ceil(cauhois.length / questionsPerPage)
+                            currentPage ===
+                            Math.ceil(cauhois.length / questionsPerPage)
                               ? "disabled"
                               : ""
                           }`}
                           id="crancy-table__main_next"
                           onClick={() =>
-                            currentPage < Math.ceil(cauhois.length / questionsPerPage) &&
+                            currentPage <
+                              Math.ceil(cauhois.length / questionsPerPage) &&
                             setCurrentPage(currentPage + 1)
                           }
                         >

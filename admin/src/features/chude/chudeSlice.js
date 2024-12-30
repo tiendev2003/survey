@@ -8,7 +8,6 @@ const initialState = {
   error: null,
 };
 
-
 export const fetchTopics = createAsyncThunk(
   "topics/fetchTopics",
   async (_, { rejectWithValue }) => {
@@ -57,20 +56,15 @@ export const createTopic = createAsyncThunk(
   }
 );
 
-
 export const editTopic = createAsyncThunk(
   "topics/editTopic",
   async (topic, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.put(
-        `/api/topics/${topic.id}`,
-        topic,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const response = await axiosClient.put(`/api/topics/${topic.id}`, topic, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -87,7 +81,7 @@ export const deleteTopic = createAsyncThunk(
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      return response.data;
+      return id;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -102,7 +96,7 @@ const chudeSlice = createSlice({
       state.chude = {};
     },
   },
-  extraReducers:  (builder) => {
+  extraReducers: (builder) => {
     builder
       .addCase(fetchTopics.pending, (state, action) => {
         state.status = "loading";
@@ -122,51 +116,48 @@ const chudeSlice = createSlice({
         state.status = "succeeded";
         state.chude = action.payload.data;
       })
-      .addCase(fetchTopicById.rejected, (
-        state,
-        action
-      ) => {
+      .addCase(fetchTopicById.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       })
-        .addCase(createTopic.pending, (state, action) => {
-            state.status = "loading";
-        })
-        .addCase(createTopic.fulfilled, (state, action) => {
-            state.status = "succeeded";
-            state.chudes.push(action.payload.data);
-        })
-        .addCase(createTopic.rejected, (state, action) => {
-            state.status = "failed";
-            state.error = action.payload;
-        })
-        .addCase(editTopic.pending, (state, action) => {
-            state.status = "loading";
-        })
-        .addCase(editTopic.fulfilled, (state, action) => {
-            state.status = "succeeded";
-            state.chudes = state.chudes.map((chude) =>
-                chude.id === action.payload.id ? action.payload : chude
-            );
-        })
-        .addCase(editTopic.rejected, (state, action) => {
-            state.status = "failed";
-            state.error = action.payload;
-        })
-        .addCase(deleteTopic.pending, (state, action) => {
-            state.status = "loading";
-        })
-        .addCase(deleteTopic.fulfilled, (state, action) => {
-            state.status = "succeeded";
-            state.chudes = state.chudes.filter((chude) => chude.id !== action.payload.id);
-        })
-        .addCase(deleteTopic.rejected, (state, action) => {
-            state.status = "failed";
-            state.error = action.payload;
-        });
-    }
+      .addCase(createTopic.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(createTopic.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.chudes.push(action.payload.data);
+      })
+      .addCase(createTopic.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(editTopic.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(editTopic.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.chudes = state.chudes.map((chude) =>
+          chude.id === action.payload.id ? action.payload : chude
+        );
+      })
+      .addCase(editTopic.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(deleteTopic.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(deleteTopic.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.chudes = state.chudes.filter(
+          (chude) => chude.id !== action.payload.id
+        );
+      })
+      .addCase(deleteTopic.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      });
+  },
 });
 
-
- 
 export default chudeSlice.reducer;

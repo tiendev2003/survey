@@ -9,7 +9,7 @@ function SignUpForm() {
     password: "",
     username: "",
     role: "student", // or other roles as needed
-    class_id: "" // if applicable
+    class_id: "", // if applicable
   });
 
   const [classes, setClasses] = useState([]);
@@ -85,7 +85,6 @@ function SignUpForm() {
               id="password-field"
               type="password"
               name="password"
-              maxLength="8"
               required="required"
               value={formData.password}
               onChange={handleChange}

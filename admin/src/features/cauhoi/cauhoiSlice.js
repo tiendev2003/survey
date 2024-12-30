@@ -82,7 +82,7 @@ export const deleteQuestion = createAsyncThunk(
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-      return response.data;
+      return id;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -181,8 +181,9 @@ const cauhoiSlice = createSlice({
       })
       .addCase(deleteQuestion.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log(state.cauhoi);
         state.cauhois = state.cauhois.filter(
-          (cauhoi) => cauhoi.id !== action.payload.data.id
+          (cauhoi) => cauhoi.id !== action.payload.id
         );
         state.error = null;
       })
