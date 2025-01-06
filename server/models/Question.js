@@ -21,21 +21,13 @@ const Question = sequelize.define(
       type: DataTypes.ENUM("active", "draft", "inactive"),
       defaultValue: "active",
     },
-    survey_type_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: SurveyType,
-        key: 'id',
-      },
-    },
   },
   {
     timestamps: true,
   }
 );
 
-Question.belongsTo(SurveyType, { foreignKey: 'survey_type_id', as: 'surveyType' });
-SurveyType.hasMany(Question, { foreignKey: 'survey_type_id', as: 'questions' });
+Question.belongsToMany(SurveyType, { through: 'QuestionSurveyTypes', foreignKey: 'question_id' });
+SurveyType.belongsToMany(Question, { through: 'QuestionSurveyTypes', foreignKey: 'survey_type_id' });
 
 module.exports = Question;

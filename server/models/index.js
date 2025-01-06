@@ -97,6 +97,10 @@ SurveyType.hasMany(Survey, { foreignKey: 'survey_type_id' });
 Question.belongsTo(SurveyType, { foreignKey: 'survey_type_id' });
 SurveyType.hasMany(Question, { foreignKey: 'survey_type_id' });
 
+const QuestionSurveyTypes = sequelize.define('QuestionSurveyTypes', {}, { timestamps: false });
+Question.belongsToMany(SurveyType, { through: QuestionSurveyTypes, foreignKey: 'question_id' });
+SurveyType.belongsToMany(Question, { through: QuestionSurveyTypes, foreignKey: 'survey_type_id' });
+
 User.prototype.canAccessSurvey = async function (surveyId) {
   const count = await SurveyParticipant.count({
     where: {

@@ -2,15 +2,18 @@ const { Question, Option, SurveyType, Survey } = require("../models"); // Add Su
 const { successResponse, errorResponse } = require("../utils/response");
 
 exports.createQuestion = async (req, res) => {
-  const { question_text, question_type, options, survey_type_id } = req.body; // Add survey_type_id
-console.log(req.body);
+  const { question_text, question_type, options, survey_type_ids } = req.body; // Change to survey_type_ids
   try {
     const question = await Question.create({
       question_text,
       question_type,
       created_by: req.user.id,
-      survey_type_id, // Add survey_type_id
     });
+
+    if (Array.isArray(survey_type_ids)) {
+      const surveyTypes = await SurveyType.findAll({ where: { id: survey_type_ids } });
+      await question.setSurveyTypes(surveyTypes);
+    }
 
     if (question_type === "multiple_choice" && Array.isArray(options)) {
       const optionData = options.map((option) => ({
@@ -84,7 +87,7 @@ exports.getQuestionsStatus = async (req, res) => {
 };
 
 exports.editQuestion = async (req, res) => {
-  const { question_text, question_type, options, survey_type_id } = req.body; // Add survey_type_id
+  const { question_text, question_type, options, survey_type_ids } = req.body; // Change to survey_type_ids
   const { id } = req.params;
 
   try {
@@ -102,8 +105,12 @@ exports.editQuestion = async (req, res) => {
     await question.update({
       question_text,
       question_type,
-      survey_type_id, // Add survey_type_id
     });
+
+    if (Array.isArray(survey_type_ids)) {
+      const surveyTypes = await SurveyType.findAll({ where: { id: survey_type_ids } });
+      await question.setSurveyTypes(surveyTypes);
+    }
 
     if (question_type === "multiple_choice" && Array.isArray(options)) {
       await Option.destroy({ where: { question_id: id } });
