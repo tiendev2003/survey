@@ -43,9 +43,7 @@ function Router() {
           <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-           <Route path="/verification" element={<Verification />} />
-          <Route path="/password-success" element={<PasswordSuccess />} />
-        </Route>
+         </Route>
         {isAuthenticated ? (
           userRole === "admin" ? (
             <Route path="/admin" element={<Layout />}>
