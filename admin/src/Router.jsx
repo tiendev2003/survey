@@ -5,8 +5,9 @@ import Layout from "./component/layout";
 import LoginLayout from "./component/layout/LoginLayout";
 import { AuthContext } from "./context/AuthContext";
 import Account from "./pages/accounts";
+import ChinhSuaChuDe from "./pages/chudekhaosat/ChinhSuaChuDe";
 import DanhSachChuDe from "./pages/chudekhaosat/DanhSachChuDe";
-import ConfirmPassword from "./pages/confirm-password";
+import TaoChuDe from "./pages/chudekhaosat/TaoChuDe";
 import CreateAccount from "./pages/create-account";
 import ChinhSuaCauhoi from "./pages/danhsachcauhoi/ChinhSuaCauhoi";
 import DanhSachCauhoi from "./pages/danhsachcauhoi/DanhSachCauhoi";
@@ -24,15 +25,11 @@ import Login from "./pages/login";
 import DanhSachLopHoc from "./pages/lophoc/DanhSachLopHoc";
 import SuaLopHoc from "./pages/lophoc/SuaLopHoc";
 import TaoLopHoc from "./pages/lophoc/TaoLopHoc";
-import PasswordSuccess from "./pages/password-success";
 import PendingSurveys from "./pages/pending-surveys";
 import Profile from "./pages/profile";
 import Statistics from "./pages/statistics";
 import SurveyList from "./pages/survey-list";
-import Verification from "./pages/verification";
-import TaoChuDe from "./pages/chudekhaosat/TaoChuDe";
-import ChinhSuaChuDe from "./pages/chudekhaosat/ChinhSuaChuDe";
-
+ 
 function Router() {
   const { isAuthenticated, userRole, loading } = useContext(AuthContext);
   if (loading) {
@@ -46,8 +43,7 @@ function Router() {
           <Route path="/login" element={<Login />} />
           <Route path="/create-account" element={<CreateAccount />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
-          <Route path="/confirm-password" element={<ConfirmPassword />} />
-          <Route path="/verification" element={<Verification />} />
+           <Route path="/verification" element={<Verification />} />
           <Route path="/password-success" element={<PasswordSuccess />} />
         </Route>
         {isAuthenticated ? (
